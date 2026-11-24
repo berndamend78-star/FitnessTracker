@@ -81,7 +81,7 @@
 
   let state = loadState();
   let activeTab = 'today';
-  let historyFilter = 'all';
+  let historyFilter = 'pushups';
   let customModalExerciseId = null;
 
   // --- Date Helpers (Local Timezone + Night-Owl Cutoff) ---
@@ -435,37 +435,9 @@
     }
   }
 
-  function setRingProgress(circleId, radius, ratio) {
-    const circle = document.getElementById(circleId);
-    if (!circle) return;
-    const circumference = 2 * Math.PI * radius;
-    const clamped = Math.min(Math.max(ratio, 0), 1);
-    circle.style.strokeDasharray = `${circumference}`;
-    circle.style.strokeDashoffset = `${circumference * (1 - clamped)}`;
-  }
-
   function renderTodayView(dailyMap) {
     const todayKey = getTodayKey();
     const todayData = dailyMap[todayKey] || { pushups: 0, pullups: 0, squats: 0, total: 0 };
-
-    // Summary Rings
-    setRingProgress('ring-pushups', 50, todayData.pushups / state.goals.pushups);
-    setRingProgress('ring-pullups', 37, todayData.pullups / state.goals.pullups);
-    setRingProgress('ring-squats', 24, todayData.squats / state.goals.squats);
-
-    document.getElementById('today-total-reps').textContent = formatNumber(todayData.total);
-
-    const goalsHitCount = EXERCISES.filter((ex) => todayData[ex.id] >= state.goals[ex.id]).length;
-    const statusEl = document.getElementById('today-summary-status');
-    if (todayData.total === 0) {
-      statusEl.textContent = 'Starte mit deinem ersten Mini-Set!';
-    } else if (goalsHitCount === 3) {
-      statusEl.textContent = 'Alle 3 Ringe geschlossen – starker Tag! 🎉';
-    } else if (goalsHitCount > 0) {
-      statusEl.textContent = `${goalsHitCount} von 3 Tageszielen erreicht. Weiter so!`;
-    } else {
-      statusEl.textContent = 'Jedes Mini-Set zählt – bleib dran!';
-    }
 
     // Pause Mode Banner
     const pauseContainer = document.getElementById('pause-banner-container');
@@ -746,17 +718,14 @@
 
   function renderMilestonesView(dailyMap) {
     const totals = {};
-    let grandTotal = 0;
     for (const ex of EXERCISES) {
       const rec = getExerciseRecords(dailyMap, ex.id);
       totals[ex.id] = rec.total;
-      grandTotal += rec.total;
     }
 
-    document.getElementById('lifetime-total').textContent = formatNumber(grandTotal);
     document.getElementById('lifetime-breakdown').innerHTML = EXERCISES.map((ex) => `
-      <div class="lb-item">
-        <div class="lb-num" style="color: ${ex.color};">${formatNumber(totals[ex.id])}</div>
+      <div class="lb-item" style="background: ${ex.soft}; border: 1px solid ${ex.border};">
+        <div class="lb-num" style="color: ${ex.color}; font-size: 1.35rem;">${formatNumber(totals[ex.id])}</div>
         <div class="lb-name">${ex.name}</div>
       </div>
     `).join('');

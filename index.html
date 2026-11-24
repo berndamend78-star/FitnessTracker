@@ -11,7 +11,7 @@
   <link rel="manifest" href="./manifest.webmanifest" />
   <link rel="icon" type="image/svg+xml" href="./icon.svg" />
   <link rel="apple-touch-icon" href="./icon.svg" />
-  <link rel="stylesheet" href="./styles.css?v=5" />
+  <link rel="stylesheet" href="./styles.css?v=6" />
 </head>
 <body>
   <div class="app-shell">
@@ -42,31 +42,6 @@
     <main class="app-main">
       <!-- TAB 1: HEUTE -->
       <section id="view-today" class="tab-view active" aria-label="Heute">
-        <!-- Daily Summary Hero Card -->
-        <div class="summary-card">
-          <div class="rings-wrapper" aria-hidden="true">
-            <svg id="summary-rings-svg" viewBox="0 0 120 120" class="summary-rings">
-              <!-- Outer: Pushups -->
-              <circle cx="60" cy="60" r="50" class="ring-track ring-pushups" />
-              <circle cx="60" cy="60" r="50" class="ring-fill ring-pushups" id="ring-pushups" />
-              <!-- Middle: Pullups -->
-              <circle cx="60" cy="60" r="37" class="ring-track ring-pullups" />
-              <circle cx="60" cy="60" r="37" class="ring-fill ring-pullups" id="ring-pullups" />
-              <!-- Inner: Squats -->
-              <circle cx="60" cy="60" r="24" class="ring-track ring-squats" />
-              <circle cx="60" cy="60" r="24" class="ring-fill ring-squats" id="ring-squats" />
-            </svg>
-          </div>
-          <div class="summary-info">
-            <div class="summary-label">Heutiges Gesamtvolumen</div>
-            <div class="summary-total-row">
-              <span id="today-total-reps" class="summary-total">0</span>
-              <span class="summary-unit">Wdh.</span>
-            </div>
-            <div id="today-summary-status" class="summary-status">Starte mit deinem ersten Mini-Set!</div>
-          </div>
-        </div>
-
         <!-- Pause Mode Banner (shown when Vacation/Sick mode is active) -->
         <div id="pause-banner-container"></div>
 
@@ -105,8 +80,7 @@
 
         <!-- Exercise Filter Pills -->
         <div class="filter-pills" id="history-filter-pills" role="tablist" aria-label="Übung filtern">
-          <button class="filter-pill active" data-filter="all">Alle</button>
-          <button class="filter-pill" data-filter="pushups">Liegestütze</button>
+          <button class="filter-pill active" data-filter="pushups">Liegestütze</button>
           <button class="filter-pill" data-filter="pullups">Klimmzüge</button>
           <button class="filter-pill" data-filter="squats">Kniebeugen</button>
         </div>
@@ -154,10 +128,9 @@
 
       <!-- TAB 3: ERFOLGE / MILESTONES -->
       <section id="view-milestones" class="tab-view" aria-label="Meilensteine">
-        <!-- Lifetime Summary -->
+        <!-- Lifetime Summary per Exercise -->
         <div class="card lifetime-hero">
-          <div class="lifetime-label">Gesamtvolumen aller Zeiten</div>
-          <div id="lifetime-total" class="lifetime-number">0</div>
+          <div class="lifetime-label" style="margin-bottom: 12px;">Gesamt-Wiederholungen pro Übung</div>
           <div id="lifetime-breakdown" class="lifetime-breakdown"></div>
         </div>
 
@@ -353,6 +326,6 @@
   <!-- Confetti Canvas -->
   <canvas id="confetti-canvas" class="confetti-canvas" aria-hidden="true"></canvas>
 
-  <script src="./app.js?v=5"></script>
+  <script src="./app.js?v=6"></script>
 </body>
 </html>
