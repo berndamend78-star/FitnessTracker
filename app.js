@@ -723,13 +723,6 @@
       totals[ex.id] = rec.total;
     }
 
-    document.getElementById('lifetime-breakdown').innerHTML = EXERCISES.map((ex) => `
-      <div class="lb-item" style="background: ${ex.soft}; border: 1px solid ${ex.border};">
-        <div class="lb-num" style="color: ${ex.color}; font-size: 1.35rem;">${formatNumber(totals[ex.id])}</div>
-        <div class="lb-name">${ex.name}</div>
-      </div>
-    `).join('');
-
     // Pull-up Altitude
     const meters = +(totals.pullups * 0.5).toFixed(1);
     document.getElementById('altitude-meters').textContent = `${meters.toLocaleString('de-DE')} m`;
