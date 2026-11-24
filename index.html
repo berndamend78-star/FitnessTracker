@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#ffffff" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="description" content="RepFlow – Mini-Set Fitness Tracker für Liegestütze, Klimmzüge und Kniebeugen." />
+  <title>RepFlow – Mini-Set Tracker</title>
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="icon" type="image/svg+xml" href="./icon.svg" />
+  <link rel="apple-touch-icon" href="./icon.svg" />
+  <link rel="stylesheet" href="./styles.css?v=5" />
+</head>
+<body>
+  <div class="app-shell">
+    <!-- Top Header -->
+    <header class="app-header">
+      <div class="header-left">
+        <div class="brand-row">
+          <img src="./icon.svg" alt="" class="brand-icon" width="26" height="26" />
+          <h1 class="brand-title">RepFlow</h1>
+        </div>
+        <p id="header-date" class="header-date">Heute</p>
+      </div>
+      <div class="header-right">
+        <div id="header-streak-pill" class="streak-pill" title="Aktive Tage diese Woche">
+          <span class="streak-flame">🔥</span>
+          <span id="header-streak-text">0/5 Woche</span>
+        </div>
+        <button id="btn-open-settings" class="icon-btn" aria-label="Einstellungen" title="Einstellungen">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.26.6.85 1 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="app-main">
+      <!-- TAB 1: HEUTE -->
+      <section id="view-today" class="tab-view active" aria-label="Heute">
+        <!-- Daily Summary Hero Card -->
+        <div class="summary-card">
+          <div class="rings-wrapper" aria-hidden="true">
+            <svg id="summary-rings-svg" viewBox="0 0 120 120" class="summary-rings">
+              <!-- Outer: Pushups -->
+              <circle cx="60" cy="60" r="50" class="ring-track ring-pushups" />
+              <circle cx="60" cy="60" r="50" class="ring-fill ring-pushups" id="ring-pushups" />
+              <!-- Middle: Pullups -->
+              <circle cx="60" cy="60" r="37" class="ring-track ring-pullups" />
+              <circle cx="60" cy="60" r="37" class="ring-fill ring-pullups" id="ring-pullups" />
+              <!-- Inner: Squats -->
+              <circle cx="60" cy="60" r="24" class="ring-track ring-squats" />
+              <circle cx="60" cy="60" r="24" class="ring-fill ring-squats" id="ring-squats" />
+            </svg>
+          </div>
+          <div class="summary-info">
+            <div class="summary-label">Heutiges Gesamtvolumen</div>
+            <div class="summary-total-row">
+              <span id="today-total-reps" class="summary-total">0</span>
+              <span class="summary-unit">Wdh.</span>
+            </div>
+            <div id="today-summary-status" class="summary-status">Starte mit deinem ersten Mini-Set!</div>
+          </div>
+        </div>
+
+        <!-- Pause Mode Banner (shown when Vacation/Sick mode is active) -->
+        <div id="pause-banner-container"></div>
+
+        <!-- Dynamic Level-Up Suggestion Banner (shown when N-day goal streak hit) -->
+        <div id="progression-banner-container"></div>
+
+        <!-- 3 Exercise Cards -->
+        <div id="exercise-cards" class="exercise-list"></div>
+
+        <!-- Today's Mini-Set Log -->
+        <div class="section-block">
+          <div class="section-header">
+            <h2 class="section-title">Heutige Mini-Sets</h2>
+            <span id="today-sets-count" class="section-badge">0 Sets</span>
+          </div>
+          <div id="today-log-list" class="log-list"></div>
+        </div>
+      </section>
+
+      <!-- TAB 2: VERLAUF -->
+      <section id="view-history" class="tab-view" aria-label="Verlauf">
+        <!-- Weekly Consistency Card -->
+        <div class="card">
+          <div class="card-header-row">
+            <div>
+              <h2 class="card-title">Wochen-Konsistenz</h2>
+              <p id="week-consistency-subtitle" class="card-subtitle">Aktive Tage diese Woche</p>
+            </div>
+            <div class="streak-big-badge">
+              <span id="weeks-streak-count" class="streak-big-num">0</span>
+              <span class="streak-big-label">Wochen-Serie</span>
+            </div>
+          </div>
+          <div id="week-days-row" class="week-days-row"></div>
+        </div>
+
+        <!-- Exercise Filter Pills -->
+        <div class="filter-pills" id="history-filter-pills" role="tablist" aria-label="Übung filtern">
+          <button class="filter-pill active" data-filter="all">Alle</button>
+          <button class="filter-pill" data-filter="pushups">Liegestütze</button>
+          <button class="filter-pill" data-filter="pullups">Klimmzüge</button>
+          <button class="filter-pill" data-filter="squats">Kniebeugen</button>
+        </div>
+
+        <!-- 14-Day Bar Chart Card -->
+        <div class="card">
+          <div class="card-header-row">
+            <div>
+              <h2 class="card-title">Letzte 14 Tage</h2>
+              <p id="chart-avg-subtitle" class="card-subtitle">7-Tage-Schnitt: 0 Wdh.</p>
+            </div>
+            <div class="chart-legend">
+              <span class="legend-dot legend-avg"></span> 7T-Schnitt
+            </div>
+          </div>
+          <div id="bar-chart-container" class="bar-chart-container"></div>
+        </div>
+
+        <!-- 12-Week Activity Heatmap -->
+        <div class="card">
+          <div class="card-header-row">
+            <div>
+              <h2 class="card-title">Aktivitäts-Heatmap</h2>
+              <p id="heatmap-tooltip" class="card-subtitle">Letzte 12 Wochen · Kästchen antippen für Details</p>
+            </div>
+          </div>
+          <div id="heatmap-container" class="heatmap-container"></div>
+          <div class="heatmap-legend">
+            <span>Weniger</span>
+            <span class="hm-cell hm-l0"></span>
+            <span class="hm-cell hm-l1"></span>
+            <span class="hm-cell hm-l2"></span>
+            <span class="hm-cell hm-l3"></span>
+            <span class="hm-cell hm-l4"></span>
+            <span>Ziel+</span>
+          </div>
+        </div>
+
+        <!-- Personal Records -->
+        <div class="card">
+          <h2 class="card-title" style="margin-bottom: 12px;">Persönliche Rekorde</h2>
+          <div id="records-grid" class="records-grid"></div>
+        </div>
+      </section>
+
+      <!-- TAB 3: ERFOLGE / MILESTONES -->
+      <section id="view-milestones" class="tab-view" aria-label="Meilensteine">
+        <!-- Lifetime Summary -->
+        <div class="card lifetime-hero">
+          <div class="lifetime-label">Gesamtvolumen aller Zeiten</div>
+          <div id="lifetime-total" class="lifetime-number">0</div>
+          <div id="lifetime-breakdown" class="lifetime-breakdown"></div>
+        </div>
+
+        <!-- Fun Pull-up Altitude Card -->
+        <div class="card altitude-card">
+          <div class="card-header-row">
+            <div>
+              <h2 class="card-title">🏔️ Klimmzug-Höhenmeter</h2>
+              <p id="altitude-subtitle" class="card-subtitle">0,5 m pro Klimmzug erklommen</p>
+            </div>
+            <span id="altitude-meters" class="altitude-value">0 m</span>
+          </div>
+          <div class="progress-bar-bg" style="margin-top: 10px;">
+            <div id="altitude-bar" class="progress-bar-fill" style="width: 0%; background: var(--color-pullups);"></div>
+          </div>
+          <div id="altitude-next" class="altitude-next">Nächstes Ziel: Freiheitsstatue (93 m)</div>
+        </div>
+
+        <!-- Exercise Milestones -->
+        <div id="milestones-list" class="milestones-list"></div>
+      </section>
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav" aria-label="Hauptnavigation">
+      <button class="nav-item active" data-tab="today">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
+        <span>Heute</span>
+      </button>
+      <button class="nav-item" data-tab="history">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="20" x2="18" y2="10"></line>
+          <line x1="12" y1="20" x2="12" y2="4"></line>
+          <line x1="6" y1="20" x2="6" y2="14"></line>
+        </svg>
+        <span>Verlauf</span>
+      </button>
+      <button class="nav-item" data-tab="milestones">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
+          <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+          <path d="M4 22h16"></path>
+          <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path>
+          <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path>
+          <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path>
+        </svg>
+        <span>Erfolge</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- Custom Reps Modal -->
+  <div id="custom-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="custom-modal-title">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <h3 id="custom-modal-title" class="modal-title">Eigene Anzahl</h3>
+        <button class="icon-btn modal-close" data-close="custom-modal" aria-label="Schließen">✕</button>
+      </div>
+      <form id="custom-reps-form" class="custom-form">
+        <label for="custom-reps-input" class="input-label">Wie viele Wiederholungen hast du geschafft?</label>
+        <input id="custom-reps-input" type="number" inputmode="numeric" min="1" max="500" placeholder="z. B. 12" required class="number-input" />
+        <button type="submit" class="btn-primary">Hinzufügen</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div id="settings-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="settings-modal-title">
+    <div class="modal-sheet modal-sheet-tall">
+      <div class="modal-header">
+        <h3 id="settings-modal-title" class="modal-title">Einstellungen</h3>
+        <button class="icon-btn modal-close" data-close="settings-modal" aria-label="Schließen">✕</button>
+      </div>
+      <div class="settings-body">
+        <div class="settings-group">
+          <h4 class="settings-group-title">Tagesziele</h4>
+          <div class="setting-row">
+            <label for="goal-pushups">Liegestütze / Tag</label>
+            <input id="goal-pushups" type="number" min="1" max="1000" class="small-number-input" />
+          </div>
+          <div class="setting-row">
+            <label for="goal-pullups">Klimmzüge / Tag</label>
+            <input id="goal-pullups" type="number" min="1" max="500" class="small-number-input" />
+          </div>
+          <div class="setting-row">
+            <label for="goal-squats">Kniebeugen / Tag</label>
+            <input id="goal-squats" type="number" min="1" max="2000" class="small-number-input" />
+          </div>
+          <div class="setting-row">
+            <label for="goal-weekly-days">Aktive Tage / Woche</label>
+            <input id="goal-weekly-days" type="number" min="1" max="7" class="small-number-input" />
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <h4 class="settings-group-title">Quick-Add-Buttons (4 Werte, kommagetrennt)</h4>
+          <div class="setting-row">
+            <label for="qa-pushups">Liegestütze</label>
+            <input id="qa-pushups" type="text" inputmode="numeric" placeholder="8, 10, 12, 15" class="text-setting-input" />
+          </div>
+          <div class="setting-row">
+            <label for="qa-pullups">Klimmzüge</label>
+            <input id="qa-pullups" type="text" inputmode="numeric" placeholder="1, 2, 3, 5" class="text-setting-input" />
+          </div>
+          <div class="setting-row">
+            <label for="qa-squats">Kniebeugen</label>
+            <input id="qa-squats" type="text" inputmode="numeric" placeholder="5, 10, 15, 20" class="text-setting-input" />
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <h4 class="settings-group-title">Progression & Alltag</h4>
+          <div class="setting-row">
+            <div>
+              <div>Auto-Ziel-Steigerung</div>
+              <div class="setting-hint">Schlägt höhere Ziele nach Serie vor</div>
+            </div>
+            <label class="switch">
+              <input id="toggle-auto-levelup" type="checkbox" />
+              <span class="switch-slider"></span>
+            </label>
+          </div>
+          <div class="setting-row" id="row-levelup-days">
+            <label for="input-levelup-days">Steigerung vorschlagen nach (Tagen)</label>
+            <input id="input-levelup-days" type="number" min="2" max="30" class="small-number-input" />
+          </div>
+          <div class="setting-row">
+            <div>
+              <label for="select-day-cutoff">Tageswechsel (Nachteulen-Modus)</label>
+              <div class="setting-hint">Späte Sets zählen noch zum alten Tag</div>
+            </div>
+            <select id="select-day-cutoff" class="select-setting-input">
+              <option value="0">00:00 Uhr</option>
+              <option value="2">02:00 Uhr</option>
+              <option value="3">03:00 Uhr</option>
+              <option value="4">04:00 Uhr</option>
+            </select>
+          </div>
+          <div class="setting-row">
+            <div>
+              <div>Urlaubs- / Krankheitsmodus</div>
+              <div class="setting-hint">Pausiert deine Wochen-Serie ohne Verlust</div>
+            </div>
+            <label class="switch">
+              <input id="toggle-pause-mode" type="checkbox" />
+              <span class="switch-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <h4 class="settings-group-title">Darstellung & Feedback</h4>
+          <div class="setting-row">
+            <div>
+              <div>Vibration (Android)</div>
+              <div class="setting-hint">Kurzes Feedback beim Antippen</div>
+            </div>
+            <label class="switch">
+              <input id="toggle-vibration" type="checkbox" />
+              <span class="switch-slider"></span>
+            </label>
+          </div>
+          <div class="setting-row">
+            <span>Design-Modus</span>
+            <button id="btn-toggle-theme" class="btn-secondary">Hell ☀️</button>
+          </div>
+        </div>
+
+        <button id="btn-save-settings" class="btn-primary">Einstellungen speichern</button>
+
+        <div class="settings-group">
+          <h4 class="settings-group-title">Daten & Backup</h4>
+          <div class="settings-actions">
+            <button id="btn-export-data" class="btn-secondary">Backup exportieren (JSON)</button>
+            <label class="btn-secondary file-btn">
+              Backup importieren
+              <input id="input-import-data" type="file" accept="application/json" hidden />
+            </label>
+            <button id="btn-load-demo" class="btn-secondary">Demo-Verlauf laden (Test)</button>
+            <button id="btn-reset-data" class="btn-danger">Alle Daten löschen</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+  <!-- Confetti Canvas -->
+  <canvas id="confetti-canvas" class="confetti-canvas" aria-hidden="true"></canvas>
+
+  <script src="./app.js?v=5"></script>
+</body>
+</html>

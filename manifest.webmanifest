@@ -1,0 +1,19 @@
+{
+  "name": "RepFlow – Mini-Set Fitness Tracker",
+  "short_name": "RepFlow",
+  "description": "Erfasse Liegestütze, Klimmzüge und Kniebeugen in Mini-Sets über den Tag verteilt.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "lang": "de",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

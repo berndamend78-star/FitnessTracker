@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="112" fill="#f8fafc" stroke="#e2e8f0" stroke-width="10"/>
+  <!-- Three concentric activity rings -->
+  <circle cx="256" cy="256" r="168" fill="none" stroke="#f97316" stroke-opacity="0.18" stroke-width="32"/>
+  <circle cx="256" cy="256" r="168" fill="none" stroke="#f97316" stroke-width="32" stroke-linecap="round"
+          stroke-dasharray="790 1056" transform="rotate(-90 256 256)"/>
+
+  <circle cx="256" cy="256" r="120" fill="none" stroke="#0d9488" stroke-opacity="0.18" stroke-width="32"/>
+  <circle cx="256" cy="256" r="120" fill="none" stroke="#0d9488" stroke-width="32" stroke-linecap="round"
+          stroke-dasharray="610 754" transform="rotate(-90 256 256)"/>
+
+  <circle cx="256" cy="256" r="72" fill="none" stroke="#7c3aed" stroke-opacity="0.18" stroke-width="32"/>
+  <circle cx="256" cy="256" r="72" fill="none" stroke="#7c3aed" stroke-width="32" stroke-linecap="round"
+          stroke-dasharray="320 452" transform="rotate(-90 256 256)"/>
+</svg>
