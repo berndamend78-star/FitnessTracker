@@ -11,7 +11,7 @@
   <link rel="manifest" href="./manifest.webmanifest" />
   <link rel="icon" type="image/svg+xml" href="./icon.svg" />
   <link rel="apple-touch-icon" href="./icon.svg" />
-  <link rel="stylesheet" href="./styles.css?v=9" />
+  <link rel="stylesheet" href="./styles.css?v=10" />
 </head>
 <body>
   <div class="app-shell">
@@ -78,22 +78,18 @@
           <div id="week-days-row" class="week-days-row"></div>
         </div>
 
-        <!-- Exercise Filter Pills -->
-        <div class="filter-pills" id="history-filter-pills" role="tablist" aria-label="Übung filtern">
-          <button class="filter-pill active" data-filter="pushups">Liegestütze</button>
-          <button class="filter-pill" data-filter="pullups">Klimmzüge</button>
-          <button class="filter-pill" data-filter="squats">Kniebeugen</button>
-        </div>
+        <!-- Exercise Filter Pills (rendered dynamically) -->
+        <div class="filter-pills" id="history-filter-pills" role="tablist" aria-label="Übung filtern"></div>
 
         <!-- 14-Day Bar Chart Card -->
         <div class="card">
           <div class="card-header-row">
             <div>
               <h2 class="card-title">Letzte 14 Tage</h2>
-              <p id="chart-avg-subtitle" class="card-subtitle">7-Tage-Schnitt: 0 Wdh.</p>
+              <p id="chart-avg-subtitle" class="card-subtitle">Ø pro Trainingstag: 0</p>
             </div>
             <div class="chart-legend">
-              <span class="legend-dot legend-avg"></span> 7T-Schnitt
+              <span class="legend-dot legend-avg"></span> Ø Trainingstag
             </div>
           </div>
           <div id="bar-chart-container" class="bar-chart-container"></div>
@@ -196,47 +192,23 @@
       </div>
       <div class="settings-body">
         <div class="settings-group">
-          <h4 class="settings-group-title">Tagesziele</h4>
-          <div class="setting-row">
-            <label for="goal-pushups">Liegestütze / Tag</label>
-            <input id="goal-pushups" type="number" min="1" max="1000" class="small-number-input" />
+          <div class="settings-group-header">
+            <h4 class="settings-group-title" style="margin-bottom: 0;">Übungen & Ziele</h4>
+            <button id="btn-add-exercise" class="btn-small-primary">+ Neue Übung</button>
           </div>
-          <div class="setting-row">
-            <label for="goal-pullups">Klimmzüge / Tag</label>
-            <input id="goal-pullups" type="number" min="1" max="500" class="small-number-input" />
-          </div>
-          <div class="setting-row">
-            <label for="goal-squats">Kniebeugen / Tag</label>
-            <input id="goal-squats" type="number" min="1" max="2000" class="small-number-input" />
-          </div>
+          <div id="settings-exercises-list" class="settings-exercises-list"></div>
+        </div>
+
+        <div class="settings-group">
+          <h4 class="settings-group-title">Wochen-Konsistenz & Progression</h4>
           <div class="setting-row">
             <label for="goal-weekly-days">Aktive Tage / Woche</label>
             <input id="goal-weekly-days" type="number" min="1" max="7" class="small-number-input" />
           </div>
-        </div>
-
-        <div class="settings-group">
-          <h4 class="settings-group-title">Quick-Add-Buttons (4 Werte, kommagetrennt)</h4>
-          <div class="setting-row">
-            <label for="qa-pushups">Liegestütze</label>
-            <input id="qa-pushups" type="text" inputmode="numeric" placeholder="8, 10, 12, 15" class="text-setting-input" />
-          </div>
-          <div class="setting-row">
-            <label for="qa-pullups">Klimmzüge</label>
-            <input id="qa-pullups" type="text" inputmode="numeric" placeholder="1, 2, 3, 5" class="text-setting-input" />
-          </div>
-          <div class="setting-row">
-            <label for="qa-squats">Kniebeugen</label>
-            <input id="qa-squats" type="text" inputmode="numeric" placeholder="5, 10, 15, 20" class="text-setting-input" />
-          </div>
-        </div>
-
-        <div class="settings-group">
-          <h4 class="settings-group-title">Progression & Alltag</h4>
           <div class="setting-row">
             <div>
               <div>Auto-Ziel-Steigerung</div>
-              <div class="setting-hint">Schlägt höhere Ziele nach Serie vor</div>
+              <div class="setting-hint">Schlägt höhere Ziele nach erfolgreicher Serie vor</div>
             </div>
             <label class="switch">
               <input id="toggle-auto-levelup" type="checkbox" />
@@ -244,7 +216,10 @@
             </label>
           </div>
           <div class="setting-row" id="row-levelup-days">
-            <label for="input-levelup-days">Steigerung vorschlagen nach (Tagen)</label>
+            <div>
+              <label for="input-levelup-days">Tagesziel-Intervall (Trainingstage)</label>
+              <div class="setting-hint">Bei Wochenzielen automatisch nach 2 Wochen</div>
+            </div>
             <input id="input-levelup-days" type="number" min="2" max="30" class="small-number-input" />
           </div>
           <div class="setting-row">
@@ -307,12 +282,63 @@
     </div>
   </div>
 
+  <!-- Exercise Editor Modal -->
+  <div id="exercise-modal" class="modal-backdrop modal-backdrop-top hidden" role="dialog" aria-modal="true" aria-labelledby="exercise-modal-title">
+    <div class="modal-sheet modal-sheet-tall">
+      <div class="modal-header">
+        <h3 id="exercise-modal-title" class="modal-title">Übung bearbeiten</h3>
+        <button class="icon-btn modal-close" data-close="exercise-modal" aria-label="Schließen">✕</button>
+      </div>
+      <form id="exercise-form" class="custom-form">
+        <div>
+          <label for="ex-edit-name" class="input-label">Name der Übung</label>
+          <input id="ex-edit-name" type="text" maxlength="32" placeholder="z. B. Dips, Plank, Ausfallschritte" required class="full-text-input" />
+        </div>
+
+        <div>
+          <span class="input-label">Farbe</span>
+          <div id="ex-color-picker" class="color-picker-row"></div>
+        </div>
+
+        <div class="two-col-row">
+          <div>
+            <label for="ex-edit-unit" class="input-label">Einheit</label>
+            <select id="ex-edit-unit" class="select-setting-input full-select">
+              <option value="reps">Wiederholungen (Wdh.)</option>
+              <option value="sec">Sekunden (Sek.)</option>
+            </select>
+          </div>
+          <div>
+            <label for="ex-edit-goal-type" class="input-label">Ziel-Typ</label>
+            <select id="ex-edit-goal-type" class="select-setting-input full-select">
+              <option value="weekly">Wochenziel</option>
+              <option value="daily">Tagesziel</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="two-col-row">
+          <div>
+            <label id="ex-edit-goal-label" for="ex-edit-goal" class="input-label">Wochenziel</label>
+            <input id="ex-edit-goal" type="number" inputmode="numeric" min="1" max="50000" required class="full-text-input" />
+          </div>
+          <div>
+            <label for="ex-edit-quickadds" class="input-label">Quick-Add (kommagetrennt)</label>
+            <input id="ex-edit-quickadds" type="text" inputmode="numeric" placeholder="5, 10, 15, 20" required class="full-text-input" />
+          </div>
+        </div>
+
+        <button type="submit" class="btn-primary">Übung speichern</button>
+      </form>
+    </div>
+  </div>
+
   <!-- Toast Container -->
   <div id="toast-container" class="toast-container" aria-live="polite"></div>
 
   <!-- Confetti Canvas -->
   <canvas id="confetti-canvas" class="confetti-canvas" aria-hidden="true"></canvas>
 
-  <script src="./app.js?v=9"></script>
+  <script src="./app.js?v=10"></script>
 </body>
 </html>

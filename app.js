@@ -3,45 +3,84 @@
 
   const STORAGE_KEY = 'repflow_data_v1';
 
-  const EXERCISES = [
+  const COLOR_PALETTE = {
+    orange: {
+      name: 'Orange',
+      light: { color: '#ea580c', soft: '#fff3eb', border: '#fed7aa' },
+      dark:  { color: '#ff6b4a', soft: 'rgba(255, 107, 74, 0.14)', border: 'rgba(255, 107, 74, 0.32)' }
+    },
+    teal: {
+      name: 'Türkis',
+      light: { color: '#0d9488', soft: '#ecfdf8', border: '#99f6e4' },
+      dark:  { color: '#2dd4bf', soft: 'rgba(45, 212, 191, 0.14)', border: 'rgba(45, 212, 191, 0.32)' }
+    },
+    violet: {
+      name: 'Violett',
+      light: { color: '#7c3aed', soft: '#f5f3ff', border: '#ddd6fe' },
+      dark:  { color: '#a78bfa', soft: 'rgba(167, 139, 250, 0.14)', border: 'rgba(167, 139, 250, 0.32)' }
+    },
+    blue: {
+      name: 'Blau',
+      light: { color: '#2563eb', soft: '#eff6ff', border: '#bfdbfe' },
+      dark:  { color: '#60a5fa', soft: 'rgba(96, 165, 250, 0.14)', border: 'rgba(96, 165, 250, 0.32)' }
+    },
+    rose: {
+      name: 'Rot-Pink',
+      light: { color: '#e11d48', soft: '#fff1f2', border: '#fecdd3' },
+      dark:  { color: '#fb7185', soft: 'rgba(251, 113, 133, 0.14)', border: 'rgba(251, 113, 133, 0.32)' }
+    },
+    amber: {
+      name: 'Gelb-Gold',
+      light: { color: '#d97706', soft: '#fffbeb', border: '#fde68a' },
+      dark:  { color: '#fbbf24', soft: 'rgba(251, 191, 36, 0.14)', border: 'rgba(251, 191, 36, 0.32)' }
+    },
+    emerald: {
+      name: 'Grün',
+      light: { color: '#059669', soft: '#ecfdf5', border: '#a7f3d0' },
+      dark:  { color: '#34d399', soft: 'rgba(52, 211, 153, 0.14)', border: 'rgba(52, 211, 153, 0.32)' }
+    }
+  };
+
+  const BUILTIN_ICONS = {
+    pushups: `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 18h20"/><path d="M5 18l3-7h8l3 7"/><circle cx="17" cy="7" r="2"/></svg>`,
+    pullups: `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h18"/><path d="M8 5v5l4 2 4-2V5"/><path d="M12 12v8"/><circle cx="12" cy="8.5" r="1.8"/></svg>`,
+    squats: `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2"/><path d="M12 7v5l-4 3 1 5"/><path d="M12 12l4 3-1 5"/><path d="M7 10h10"/></svg>`,
+    custom: `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`
+  };
+
+  const DEFAULT_EXERCISES = [
     {
       id: 'pushups',
       name: 'Liegestütze',
-      color: 'var(--color-pushups)',
-      hex: '#ea580c',
-      soft: 'var(--color-pushups-soft)',
-      border: 'var(--color-pushups-border)',
+      colorKey: 'orange',
+      unit: 'reps',
+      goalType: 'weekly',
+      goal: 150,
       quickAdds: [8, 10, 12, 15],
-      defaultGoal: 30,
-      levelUpStep: 5,
       milestones: [50, 100, 250, 500, 1000, 2500, 5000, 10000],
-      icon: `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 18h20"/><path d="M5 18l3-7h8l3 7"/><circle cx="17" cy="7" r="2"/></svg>`
+      archived: false
     },
     {
       id: 'pullups',
       name: 'Klimmzüge',
-      color: 'var(--color-pullups)',
-      hex: '#0d9488',
-      soft: 'var(--color-pullups-soft)',
-      border: 'var(--color-pullups-border)',
+      colorKey: 'teal',
+      unit: 'reps',
+      goalType: 'weekly',
+      goal: 50,
       quickAdds: [1, 2, 3, 5],
-      defaultGoal: 10,
-      levelUpStep: 2,
       milestones: [25, 50, 100, 250, 500, 1000, 2500, 5000],
-      icon: `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h18"/><path d="M8 5v5l4 2 4-2V5"/><path d="M12 12v8"/><circle cx="12" cy="8.5" r="1.8"/></svg>`
+      archived: false
     },
     {
       id: 'squats',
       name: 'Kniebeugen',
-      color: 'var(--color-squats)',
-      hex: '#7c3aed',
-      soft: 'var(--color-squats-soft)',
-      border: 'var(--color-squats-border)',
+      colorKey: 'violet',
+      unit: 'reps',
+      goalType: 'weekly',
+      goal: 200,
       quickAdds: [5, 10, 15, 20],
-      defaultGoal: 40,
-      levelUpStep: 5,
       milestones: [100, 250, 500, 1000, 2500, 5000, 10000, 25000],
-      icon: `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2"/><path d="M12 7v5l-4 3 1 5"/><path d="M12 12l4 3-1 5"/><path d="M7 10h10"/></svg>`
+      archived: false
     }
   ];
 
@@ -101,17 +140,8 @@
   };
 
   const DEFAULT_STATE = {
-    entries: [], // { id, date: 'YYYY-MM-DD', ts: number, exercise: 'pushups'|'pullups'|'squats', reps: number }
-    goals: {
-      pushups: 30,
-      pullups: 10,
-      squats: 40
-    },
-    quickAdds: {
-      pushups: [8, 10, 12, 15],
-      pullups: [1, 2, 3, 5],
-      squats: [5, 10, 15, 20]
-    },
+    entries: [], // { id, date: 'YYYY-MM-DD', ts: number, exercise: string, reps: number }
+    exercises: structuredClone(DEFAULT_EXERCISES),
     weeklyGoalDays: 5,
     autoLevelUp: true,
     levelUpDays: 5,
@@ -121,15 +151,18 @@
     vibration: true,
     theme: 'light',
     themeMigratedToLight: true,
-    dismissedLevelUps: {} // { pushups: 30 } -> dismissed suggestion at goal 30
+    exercisesMigratedV2: true,
+    dismissedLevelUps: {}
   };
 
   let state = loadState();
   let activeTab = 'today';
-  let historyFilter = 'pushups';
+  let historyFilter = state.exercises.find((e) => !e.archived)?.id || state.exercises[0]?.id || 'pushups';
   let customModalExerciseId = null;
+  let editingExerciseId = null;
+  let selectedColorKey = 'blue';
 
-  // --- Date Helpers (Local Timezone + Night-Owl Cutoff) ---
+  // --- Helpers ---
   function getEffectiveDate(now = new Date()) {
     const cutoff = state?.dayCutoffHour || 0;
     if (!cutoff) return now;
@@ -172,9 +205,9 @@
     });
   }
 
-  function getMondayOfWeek(date = new Date()) {
+  function getMondayOfWeek(date = getEffectiveDate()) {
     const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-    const day = d.getDay(); // 0=Sun, 1=Mon
+    const day = d.getDay();
     const diff = day === 0 ? -6 : 1 - day;
     d.setDate(d.getDate() + diff);
     return d;
@@ -184,14 +217,53 @@
     return Number(n).toLocaleString('de-DE');
   }
 
+  function formatUnit(ex, value, short = false) {
+    if (ex.unit === 'sec') {
+      return short ? `${formatNumber(value)}s` : `${formatNumber(value)} Sek.`;
+    }
+    return short ? `${formatNumber(value)}` : `${formatNumber(value)} Wdh.`;
+  }
+
+  function unitLabel(ex) {
+    return ex.unit === 'sec' ? 'Sek.' : 'Wdh.';
+  }
+
+  function getExColors(ex) {
+    const palette = COLOR_PALETTE[ex.colorKey] || COLOR_PALETTE.blue;
+    return state.theme === 'dark' ? palette.dark : palette.light;
+  }
+
+  function getExIcon(ex) {
+    return BUILTIN_ICONS[ex.id] || BUILTIN_ICONS.custom;
+  }
+
+  function getExMilestones(ex) {
+    if (Array.isArray(ex.milestones) && ex.milestones.length) return ex.milestones;
+    if (ex.unit === 'sec') return [300, 600, 1800, 3600, 7200, 18000, 36000];
+    return [50, 100, 250, 500, 1000, 2500, 5000, 10000];
+  }
+
+  function getSuggestedLevelUpStep(ex) {
+    if (ex.goal < 20) return 2;
+    if (ex.goal < 60) return 5;
+    const pctStep = Math.round((ex.goal * 0.12) / 5) * 5;
+    return Math.max(5, pctStep);
+  }
+
+  function getExerciseById(id) {
+    return state.exercises.find((e) => e.id === id);
+  }
+
+  function getVisibleExercises() {
+    return state.exercises.filter((e) => !e.archived);
+  }
+
   function vibrate(pattern) {
     if (!state.vibration) return;
     if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
       try {
         navigator.vibrate(pattern);
-      } catch {
-        // Ignore on unsupported browsers
-      }
+      } catch {}
     }
   }
 
@@ -199,9 +271,17 @@
     const nums = String(rawStr || '')
       .split(/[,;\s]+/)
       .map((s) => parseInt(s.trim(), 10))
-      .filter((n) => Number.isFinite(n) && n >= 1 && n <= 500);
+      .filter((n) => Number.isFinite(n) && n >= 1 && n <= 1000);
     const unique = [...new Set(nums)].slice(0, 6);
     return unique.length > 0 ? unique : [...fallback];
+  }
+
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
   }
 
   function ensureCurrentWeekPausedIfNeeded() {
@@ -213,29 +293,50 @@
     }
   }
 
-  // --- State Persistence ---
+  // --- State Persistence & Migration ---
   function loadState() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (!raw) return structuredClone(DEFAULT_STATE);
       const parsed = JSON.parse(raw);
+
+      let exercises;
+      if (Array.isArray(parsed.exercises) && parsed.exercises.length > 0) {
+        exercises = parsed.exercises.map((ex) => ({
+          unit: 'reps',
+          goalType: 'weekly',
+          archived: false,
+          colorKey: 'blue',
+          quickAdds: [5, 10, 15, 20],
+          ...ex
+        }));
+      } else {
+        // Seamless migration from v1–v9 (preserves old goals * 5 as weekly goals & custom quickAdds)
+        exercises = structuredClone(DEFAULT_EXERCISES).map((ex) => {
+          const oldGoal = parsed.goals?.[ex.id];
+          const oldQA = parsed.quickAdds?.[ex.id];
+          return {
+            ...ex,
+            goal: oldGoal ? Math.round(oldGoal * 5) : ex.goal,
+            quickAdds: Array.isArray(oldQA) && oldQA.length ? oldQA : ex.quickAdds
+          };
+        });
+      }
+
       const merged = {
         ...structuredClone(DEFAULT_STATE),
         ...parsed,
-        goals: { ...DEFAULT_STATE.goals, ...(parsed.goals || {}) },
-        quickAdds: {
-          pushups: Array.isArray(parsed.quickAdds?.pushups) ? parsed.quickAdds.pushups : [...DEFAULT_STATE.quickAdds.pushups],
-          pullups: Array.isArray(parsed.quickAdds?.pullups) ? parsed.quickAdds.pullups : [...DEFAULT_STATE.quickAdds.pullups],
-          squats: Array.isArray(parsed.quickAdds?.squats) ? parsed.quickAdds.squats : [...DEFAULT_STATE.quickAdds.squats]
-        },
+        exercises,
         pausedWeeks: Array.isArray(parsed.pausedWeeks) ? parsed.pausedWeeks : [],
         dismissedLevelUps: { ...(parsed.dismissedLevelUps || {}) },
         entries: Array.isArray(parsed.entries) ? parsed.entries : []
       };
+
       if (!parsed.themeMigratedToLight) {
         merged.theme = 'light';
         merged.themeMigratedToLight = true;
       }
+      merged.exercisesMigratedV2 = true;
       return merged;
     } catch {
       return structuredClone(DEFAULT_STATE);
@@ -248,11 +349,10 @@
 
   // --- Aggregations ---
   function getDailyMap() {
-    // Returns { 'YYYY-MM-DD': { pushups: n, pullups: n, squats: n, total: n } }
     const map = {};
     for (const e of state.entries) {
       if (!map[e.date]) {
-        map[e.date] = { pushups: 0, pullups: 0, squats: 0, total: 0 };
+        map[e.date] = { total: 0 };
       }
       map[e.date][e.exercise] = (map[e.date][e.exercise] || 0) + e.reps;
       map[e.date].total += e.reps;
@@ -264,17 +364,31 @@
     return toDateKey(getEffectiveDate());
   }
 
-  function getSevenDayAverage(dailyMap, exerciseId = 'all') {
-    const today = getEffectiveDate();
+  function getWeekTotal(dailyMap, exerciseId, referenceDate = getEffectiveDate()) {
+    const monday = getMondayOfWeek(referenceDate);
     let sum = 0;
-    for (let i = 1; i <= 7; i++) {
-      const key = toDateKey(addDays(today, -i));
-      const day = dailyMap[key];
-      const val = day ? (exerciseId === 'all' ? day.total : day[exerciseId] || 0) : 0;
-      sum += val;
+    for (let i = 0; i < 7; i++) {
+      const key = toDateKey(addDays(monday, i));
+      sum += dailyMap[key]?.[exerciseId] || 0;
     }
-    if (sum === 0) return 0;
-    return Math.round(sum / 7);
+    return sum;
+  }
+
+  // Smart average: average of the last N days where this exercise was actually performed (never penalized by rest days)
+  function getActiveDayAverage(dailyMap, exerciseId, lastN = 7) {
+    const todayKey = getTodayKey();
+    const activeVals = Object.entries(dailyMap)
+      .filter(([dateKey, data]) => dateKey !== todayKey && (data[exerciseId] || 0) > 0)
+      .sort(([a], [b]) => (a < b ? 1 : -1))
+      .slice(0, lastN)
+      .map(([, data]) => data[exerciseId]);
+
+    if (activeVals.length === 0) {
+      const todayVal = dailyMap[todayKey]?.[exerciseId] || 0;
+      return todayVal > 0 ? todayVal : 0;
+    }
+    const sum = activeVals.reduce((acc, v) => acc + v, 0);
+    return Math.round(sum / activeVals.length);
   }
 
   function getExerciseRecords(dailyMap, exerciseId) {
@@ -323,7 +437,6 @@
       });
     }
 
-    // Count consecutive weeks meeting weeklyGoalDays (skipping paused weeks without breaking streak)
     let streakWeeks = activeThisWeek >= state.weeklyGoalDays ? 1 : 0;
     let checkMonday = addDays(monday, -7);
 
@@ -338,7 +451,6 @@
         streakWeeks++;
         checkMonday = addDays(checkMonday, -7);
       } else if (state.pausedWeeks.includes(weekKey)) {
-        // Paused week protects the streak without adding to it
         checkMonday = addDays(checkMonday, -7);
       } else {
         break;
@@ -354,28 +466,42 @@
     const today = getEffectiveDate();
     const suggestions = [];
 
-    for (const ex of EXERCISES) {
-      const goal = state.goals[ex.id];
+    for (const ex of getVisibleExercises()) {
+      const goal = ex.goal;
       if (state.dismissedLevelUps[ex.id] === goal) continue;
 
-      let consecutive = 0;
-      const startOffset = (dailyMap[toDateKey(today)]?.[ex.id] || 0) >= goal ? 0 : 1;
-      for (let i = startOffset; i < startOffset + requiredDays; i++) {
-        const key = toDateKey(addDays(today, -i));
-        if ((dailyMap[key]?.[ex.id] || 0) >= goal) {
-          consecutive++;
-        } else {
-          break;
-        }
-      }
+      if (ex.goalType === 'weekly') {
+        // 2 consecutive weeks meeting the weekly goal
+        const thisWeek = getWeekTotal(dailyMap, ex.id, today);
+        const lastWeek = getWeekTotal(dailyMap, ex.id, addDays(today, -7));
+        const twoWeeksAgo = getWeekTotal(dailyMap, ex.id, addDays(today, -14));
 
-      if (consecutive >= requiredDays) {
-        suggestions.push({
-          exercise: ex,
-          currentGoal: goal,
-          nextGoal: goal + ex.levelUpStep,
-          requiredDays
-        });
+        const hitTwoWeeks = (thisWeek >= goal && lastWeek >= goal) || (lastWeek >= goal && twoWeeksAgo >= goal);
+        if (hitTwoWeeks) {
+          suggestions.push({
+            exercise: ex,
+            currentGoal: goal,
+            nextGoal: goal + getSuggestedLevelUpStep(ex),
+            label: '2 Wochen in Folge',
+            periodLabel: 'Woche'
+          });
+        }
+      } else {
+        // Last N active training days of this exercise all met the daily goal
+        const activeDays = Object.entries(dailyMap)
+          .filter(([, data]) => (data[ex.id] || 0) > 0)
+          .sort(([a], [b]) => (a < b ? 1 : -1))
+          .slice(0, requiredDays);
+
+        if (activeDays.length >= requiredDays && activeDays.every(([, data]) => (data[ex.id] || 0) >= goal)) {
+          suggestions.push({
+            exercise: ex,
+            currentGoal: goal,
+            nextGoal: goal + getSuggestedLevelUpStep(ex),
+            label: `${requiredDays} Trainingstage in Folge`,
+            periodLabel: 'Tag'
+          });
+        }
       }
     }
     return suggestions;
@@ -386,12 +512,15 @@
     const num = parseInt(reps, 10);
     if (!num || num <= 0) return;
 
-    const ex = EXERCISES.find((x) => x.id === exerciseId);
+    const ex = getExerciseById(exerciseId);
+    if (!ex) return;
+
     const todayKey = getTodayKey();
     const dailyMapBefore = getDailyMap();
     const prevTodayReps = dailyMapBefore[todayKey]?.[exerciseId] || 0;
+    const prevWeekReps = getWeekTotal(dailyMapBefore, exerciseId);
     const prevRecords = getExerciseRecords(dailyMapBefore, exerciseId);
-    const goal = state.goals[exerciseId];
+    const goal = ex.goal;
 
     const entry = {
       id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
@@ -405,17 +534,20 @@
     saveState();
 
     const newTodayReps = prevTodayReps + num;
+    const newWeekReps = prevWeekReps + num;
     const newTotal = prevRecords.total + num;
 
-    // Check celebrations
-    const hitGoal = prevTodayReps < goal && newTodayReps >= goal;
+    const hitGoal = ex.goalType === 'weekly'
+      ? (prevWeekReps < goal && newWeekReps >= goal)
+      : (prevTodayReps < goal && newTodayReps >= goal);
+
     const hitDailyPR = prevRecords.bestDayBeforeToday > 0 && prevTodayReps <= prevRecords.bestDayBeforeToday && newTodayReps > prevRecords.bestDayBeforeToday;
     const hitMaxSet = prevRecords.maxSet > 0 && num > prevRecords.maxSet;
-    const unlockedMilestone = ex.milestones.find((m) => prevRecords.total < m && newTotal >= m);
+    const milestones = getExMilestones(ex);
+    const unlockedMilestone = milestones.find((m) => prevRecords.total < m && newTotal >= m);
 
     renderAll();
 
-    // Subtle card pulse
     const cardEl = document.querySelector(`.exercise-card[data-ex="${exerciseId}"]`);
     if (cardEl) {
       cardEl.classList.remove('pulse');
@@ -426,21 +558,23 @@
     if (unlockedMilestone) {
       vibrate([25, 45, 35]);
       triggerConfetti();
-      showToast(`🏆 Meilenstein: ${formatNumber(unlockedMilestone)} ${ex.name} gesamt!`, { celebrate: true, undoId: entry.id });
+      showToast(`🏆 Meilenstein: ${formatUnit(ex, unlockedMilestone)} ${ex.name} gesamt!`, { celebrate: true, undoId: entry.id });
     } else if (hitGoal) {
       vibrate([20, 40, 30]);
       triggerConfetti();
-      showToast(`🎉 Tagesziel für ${ex.name} erreicht (${newTodayReps}/${goal})!`, { celebrate: true, undoId: entry.id });
+      const goalWord = ex.goalType === 'weekly' ? 'Wochenziel' : 'Tagesziel';
+      const valNow = ex.goalType === 'weekly' ? newWeekReps : newTodayReps;
+      showToast(`🎉 ${goalWord} für ${ex.name} erreicht (${valNow}/${goal})!`, { celebrate: true, undoId: entry.id });
     } else if (hitDailyPR) {
       vibrate([20, 40, 30]);
       triggerConfetti();
-      showToast(`🔥 Neuer Tagesrekord bei ${ex.name}: ${newTodayReps} Wdh.!`, { celebrate: true, undoId: entry.id });
+      showToast(`🔥 Neuer Tagesrekord bei ${ex.name}: ${formatUnit(ex, newTodayReps)}!`, { celebrate: true, undoId: entry.id });
     } else if (hitMaxSet) {
       vibrate([20, 35, 20]);
-      showToast(`💪 Neues bestes Einzel-Set: ${num} ${ex.name}!`, { celebrate: true, undoId: entry.id });
+      showToast(`💪 Neues bestes Einzel-Set: ${formatUnit(ex, num)} ${ex.name}!`, { celebrate: true, undoId: entry.id });
     } else {
       vibrate(15);
-      showToast(`+${num} ${ex.name} gespeichert`, { undoId: entry.id });
+      showToast(`+${formatUnit(ex, num, true)} ${ex.name} gespeichert`, { undoId: entry.id });
     }
   }
 
@@ -455,6 +589,10 @@
   // --- Rendering ---
   function renderAll() {
     const dailyMap = getDailyMap();
+    // Ensure historyFilter points to an existing exercise
+    if (!getExerciseById(historyFilter)) {
+      historyFilter = getVisibleExercises()[0]?.id || state.exercises[0]?.id || 'pushups';
+    }
     renderHeader(dailyMap);
     renderTodayView(dailyMap);
     renderHistoryView(dailyMap);
@@ -482,7 +620,7 @@
 
   function renderTodayView(dailyMap) {
     const todayKey = getTodayKey();
-    const todayData = dailyMap[todayKey] || { pushups: 0, pullups: 0, squats: 0, total: 0 };
+    const todayData = dailyMap[todayKey] || { total: 0 };
 
     // Pause Mode Banner
     const pauseContainer = document.getElementById('pause-banner-container');
@@ -511,7 +649,7 @@
       bannerContainer.innerHTML = `
         <div class="progression-banner">
           <div class="progression-text">
-            🚀 <strong>${s.requiredDays} Tage in Folge</strong> dein ${s.exercise.name}-Ziel (${s.currentGoal}) geschafft! Bereit für <strong>${s.nextGoal} / Tag</strong>?
+            🚀 <strong>${s.label}</strong> dein ${escapeHtml(s.exercise.name)}-Ziel (${s.currentGoal}) geschafft! Bereit für <strong>${s.nextGoal} / ${s.periodLabel}</strong>?
           </div>
           <div class="progression-actions">
             <button class="btn-primary" id="btn-accept-levelup" style="padding: 8px 12px; font-size: 0.82rem;">Auf ${s.nextGoal} erhöhen</button>
@@ -520,11 +658,11 @@
         </div>
       `;
       document.getElementById('btn-accept-levelup').onclick = () => {
-        state.goals[s.exercise.id] = s.nextGoal;
+        s.exercise.goal = s.nextGoal;
         delete state.dismissedLevelUps[s.exercise.id];
         saveState();
         renderAll();
-        showToast(`Neues Ziel für ${s.exercise.name}: ${s.nextGoal} / Tag!`, { celebrate: true });
+        showToast(`Neues Ziel für ${s.exercise.name}: ${s.nextGoal} / ${s.periodLabel}!`, { celebrate: true });
       };
       document.getElementById('btn-dismiss-levelup').onclick = () => {
         state.dismissedLevelUps[s.exercise.id] = s.currentGoal;
@@ -537,64 +675,82 @@
 
     // Exercise Cards
     const cardsContainer = document.getElementById('exercise-cards');
-    cardsContainer.innerHTML = EXERCISES.map((ex) => {
-      const current = todayData[ex.id] || 0;
-      const goal = state.goals[ex.id];
-      const pct = Math.min(100, Math.round((current / goal) * 100));
-      const avg7 = getSevenDayAverage(dailyMap, ex.id);
-      const records = getExerciseRecords(dailyMap, ex.id);
+    const visibleExercises = getVisibleExercises();
 
-      let metaText = '';
-      if (current > records.bestDayBeforeToday && records.bestDayBeforeToday > 0) {
-        metaText = `🏆 <strong>Neuer Tagesrekord!</strong> (bisher ${records.bestDayBeforeToday})`;
-      } else if (current >= goal) {
-        metaText = `✓ Tagesziel erreicht` + (avg7 > 0 ? ` · 7T-Schnitt: ${avg7}` : '');
-      } else {
-        const remaining = goal - current;
-        metaText = `Noch <strong>${remaining}</strong> bis Ziel` + (avg7 > 0 ? ` · 7T-Schnitt: ${avg7}` : '');
-      }
+    if (visibleExercises.length === 0) {
+      cardsContainer.innerHTML = `<div class="empty-state">Alle Übungen sind ausgeblendet. Öffne oben rechts die Einstellungen (⚙️), um Übungen einzublenden oder neu anzulegen.</div>`;
+    } else {
+      cardsContainer.innerHTML = visibleExercises.map((ex) => {
+        const colors = getExColors(ex);
+        const todayVal = todayData[ex.id] || 0;
+        const weekVal = getWeekTotal(dailyMap, ex.id);
+        const goal = ex.goal;
+        const isWeekly = ex.goalType === 'weekly';
+        const progressVal = isWeekly ? weekVal : todayVal;
+        const pct = Math.min(100, Math.round((progressVal / Math.max(goal, 1)) * 100));
+        const activeAvg = getActiveDayAverage(dailyMap, ex.id);
+        const records = getExerciseRecords(dailyMap, ex.id);
+        const goalReached = progressVal >= goal;
 
-      const quickAddList = state.quickAdds?.[ex.id]?.length ? state.quickAdds[ex.id] : ex.quickAdds;
-      const quickBtns = quickAddList
-        .map((val) => `<button class="quick-btn" data-ex="${ex.id}" data-reps="${val}">+${val}</button>`)
-        .join('');
+        let metaText = '';
+        if (todayVal > records.bestDayBeforeToday && records.bestDayBeforeToday > 0) {
+          metaText = `🏆 <strong>Neuer Tagesrekord!</strong> (bisher ${formatUnit(ex, records.bestDayBeforeToday, true)})`;
+        } else if (goalReached) {
+          metaText = `✓ ${isWeekly ? 'Wochenziel' : 'Tagesziel'} erreicht` + (activeAvg > 0 ? ` · Ø ${formatUnit(ex, activeAvg, true)}/Tag` : '');
+        } else {
+          const remaining = goal - progressVal;
+          metaText = `Noch <strong>${formatUnit(ex, remaining, true)}</strong> ${isWeekly ? 'diese Woche' : 'heute'}` + (activeAvg > 0 ? ` · Ø ${formatUnit(ex, activeAvg, true)}/Tag` : '');
+        }
 
-      return `
-        <article class="exercise-card ${current >= goal ? 'goal-reached' : ''}" data-ex="${ex.id}" style="--ex-color: ${ex.color}; --ex-soft: ${ex.soft}; --ex-border: ${ex.border};">
-          <div class="ex-top">
-            <div class="ex-title-group">
-              <div class="ex-icon-badge">${ex.icon}</div>
-              <div>
-                <div class="ex-name">${ex.name}</div>
-                <div class="ex-meta">${metaText}</div>
+        const quickAddList = Array.isArray(ex.quickAdds) && ex.quickAdds.length ? ex.quickAdds : [5, 10, 15, 20];
+        const quickBtns = quickAddList
+          .map((val) => `<button class="quick-btn" data-ex="${ex.id}" data-reps="${val}">+${formatUnit(ex, val, true)}</button>`)
+          .join('');
+
+        const counterHtml = isWeekly
+          ? `<div class="ex-current">${formatUnit(ex, todayVal, true)}</div><div class="ex-goal">heute</div>`
+          : `<div class="ex-current">${formatUnit(ex, todayVal, true)}</div><div class="ex-goal">/ ${formatUnit(ex, goal, true)}</div>`;
+
+        const progressRowHtml = isWeekly
+          ? `<div class="ex-progress-row"><span>Woche: <strong>${formatUnit(ex, weekVal, true)}</strong> / ${formatUnit(ex, goal, true)}</span><span>${pct}%</span></div>`
+          : '';
+
+        return `
+          <article class="exercise-card ${goalReached ? 'goal-reached' : ''}" data-ex="${ex.id}" style="--ex-color: ${colors.color}; --ex-soft: ${colors.soft}; --ex-border: ${colors.border};">
+            <div class="ex-top">
+              <div class="ex-title-group">
+                <div class="ex-icon-badge">${getExIcon(ex)}</div>
+                <div>
+                  <div class="ex-name">${escapeHtml(ex.name)}</div>
+                  <div class="ex-meta">${metaText}</div>
+                </div>
+              </div>
+              <div class="ex-counter">
+                ${counterHtml}
               </div>
             </div>
-            <div class="ex-counter">
-              <div class="ex-current">${current}</div>
-              <div class="ex-goal">/ ${goal}</div>
+            ${progressRowHtml}
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill" style="width: ${pct}%; background: ${colors.color};"></div>
             </div>
-          </div>
-          <div class="progress-bar-bg">
-            <div class="progress-bar-fill" style="width: ${pct}%; background: ${ex.color};"></div>
-          </div>
-          <div class="quick-add-row" style="grid-template-columns: repeat(${quickAddList.length + 1}, 1fr);">
-            ${quickBtns}
-            <button class="quick-btn quick-btn-custom" data-custom-ex="${ex.id}" title="Eigene Zahl eingeben" aria-label="Eigene Anzahl für ${ex.name}">…</button>
-          </div>
-        </article>
-      `;
-    }).join('');
+            <div class="quick-add-row" style="grid-template-columns: repeat(${quickAddList.length + 1}, 1fr);">
+              ${quickBtns}
+              <button class="quick-btn quick-btn-custom" data-custom-ex="${ex.id}" title="Eigene Zahl eingeben" aria-label="Eigene Anzahl für ${escapeHtml(ex.name)}">…</button>
+            </div>
+          </article>
+        `;
+      }).join('');
 
-    // Bind quick add buttons
-    cardsContainer.querySelectorAll('[data-reps]').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        logReps(btn.dataset.ex, btn.dataset.reps);
+      cardsContainer.querySelectorAll('[data-reps]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          logReps(btn.dataset.ex, btn.dataset.reps);
+        });
       });
-    });
 
-    cardsContainer.querySelectorAll('[data-custom-ex]').forEach((btn) => {
-      btn.addEventListener('click', () => openCustomModal(btn.dataset.customEx));
-    });
+      cardsContainer.querySelectorAll('[data-custom-ex]').forEach((btn) => {
+        btn.addEventListener('click', () => openCustomModal(btn.dataset.customEx));
+      });
+    }
 
     // Today's Mini-Set Log
     const todayEntries = state.entries
@@ -608,18 +764,19 @@
       logList.innerHTML = `<div class="empty-state">Noch keine Mini-Sets heute erfasst. Tipp oben auf eine Zahl, um loszulegen!</div>`;
     } else {
       logList.innerHTML = todayEntries.map((entry) => {
-        const ex = EXERCISES.find((x) => x.id === entry.exercise);
+        const ex = getExerciseById(entry.exercise) || { name: entry.exercise, colorKey: 'blue', unit: 'reps' };
+        const colors = getExColors(ex);
         return `
           <div class="log-item">
             <div class="log-left">
-              <span class="log-dot" style="background: ${ex.color};"></span>
+              <span class="log-dot" style="background: ${colors.color};"></span>
               <div>
-                <div class="log-name">${ex.name}</div>
+                <div class="log-name">${escapeHtml(ex.name)}</div>
                 <div class="log-time">${formatTime(entry.ts)} Uhr</div>
               </div>
             </div>
             <div class="log-right">
-              <span class="log-reps" style="color: ${ex.color};">+${entry.reps}</span>
+              <span class="log-reps" style="color: ${colors.color};">+${formatUnit(ex, entry.reps, true)}</span>
               <button class="log-delete-btn" data-delete-id="${entry.id}" title="Eintrag löschen" aria-label="Eintrag löschen">✕</button>
             </div>
           </div>
@@ -647,21 +804,43 @@
       </div>
     `).join('');
 
-    // 2. 14-Day Bar Chart
-    const today = getEffectiveDate();
-    const filterEx = EXERCISES.find((x) => x.id === historyFilter);
-    const barColor = filterEx ? filterEx.color : 'var(--accent)';
-    const avg7 = getSevenDayAverage(dailyMap, historyFilter);
+    // 2. Dynamic Filter Pills (visible exercises + archived exercises with entries)
+    const historyExercises = state.exercises.filter((ex) => {
+      if (!ex.archived) return true;
+      return state.entries.some((e) => e.exercise === ex.id);
+    });
+    if (!historyExercises.some((e) => e.id === historyFilter) && historyExercises.length > 0) {
+      historyFilter = historyExercises[0].id;
+    }
 
-    document.getElementById('chart-avg-subtitle').textContent = `7-Tage-Schnitt: ${formatNumber(avg7)} Wdh./Tag`;
+    const pillsContainer = document.getElementById('history-filter-pills');
+    pillsContainer.innerHTML = historyExercises.map((ex) => `
+      <button class="filter-pill ${ex.id === historyFilter ? 'active' : ''}" data-filter="${ex.id}">${escapeHtml(ex.name)}</button>
+    `).join('');
+
+    pillsContainer.querySelectorAll('.filter-pill').forEach((pill) => {
+      pill.addEventListener('click', () => {
+        historyFilter = pill.dataset.filter;
+        renderHistoryView(getDailyMap());
+      });
+    });
+
+    // 3. 14-Day Bar Chart
+    const today = getEffectiveDate();
+    const filterEx = getExerciseById(historyFilter) || historyExercises[0];
+    if (!filterEx) return;
+    const colors = getExColors(filterEx);
+    const activeAvg = getActiveDayAverage(dailyMap, filterEx.id);
+
+    document.getElementById('chart-avg-subtitle').textContent =
+      `Ø pro Trainingstag: ${formatUnit(filterEx, activeAvg)}`;
 
     const bars = [];
-    let maxVal = Math.max(avg7, 1);
+    let maxVal = Math.max(activeAvg, 1);
     for (let i = 13; i >= 0; i--) {
       const d = addDays(today, -i);
       const key = toDateKey(d);
-      const day = dailyMap[key];
-      const val = day ? (historyFilter === 'all' ? day.total : day[historyFilter] || 0) : 0;
+      const val = dailyMap[key]?.[filterEx.id] || 0;
       if (val > maxVal) maxVal = val;
       bars.push({
         key,
@@ -673,34 +852,35 @@
 
     const chartContainer = document.getElementById('bar-chart-container');
     const trackHeightPx = 118;
-    const avgPx = Math.round((avg7 / maxVal) * trackHeightPx);
-    const avgLineHtml = avg7 > 0
+    const avgPx = Math.round((activeAvg / maxVal) * trackHeightPx);
+    const avgLineHtml = activeAvg > 0
       ? `<div class="chart-avg-line" style="bottom: ${22 + avgPx}px;"></div>`
       : '';
 
     chartContainer.innerHTML = avgLineHtml + bars.map((b) => {
       const barPx = b.val > 0 ? Math.max(4, Math.round((b.val / maxVal) * trackHeightPx)) : 3;
       return `
-        <div class="bar-col" title="${formatShortDate(b.key)}: ${b.val} Wdh.">
+        <div class="bar-col" title="${formatShortDate(b.key)}: ${formatUnit(filterEx, b.val)}">
           <span class="bar-value-tip">${b.val > 0 ? b.val : ''}</span>
           <div class="bar-track">
-            <div class="bar-fill" style="height: ${barPx}px; background: ${b.val > 0 ? barColor : 'var(--surface-elevated)'}; opacity: ${b.isToday ? 1 : 0.82};"></div>
+            <div class="bar-fill" style="height: ${barPx}px; background: ${b.val > 0 ? colors.color : 'var(--surface-elevated)'}; opacity: ${b.isToday ? 1 : 0.82};"></div>
           </div>
           <span class="bar-label" style="${b.isToday ? 'color: var(--text); font-weight: 700;' : ''}">${b.dayNum}</span>
         </div>
       `;
     }).join('');
 
-    // 3. 12-Week Activity Heatmap
+    // 4. 12-Week Activity Heatmap
     const heatmapContainer = document.getElementById('heatmap-container');
-    const hmColor = filterEx ? filterEx.hex : '#34d399';
-    heatmapContainer.style.setProperty('--hm-color', hmColor);
+    heatmapContainer.style.setProperty('--hm-color', colors.color);
 
     const currentMonday = getMondayOfWeek(today);
     const startMonday = addDays(currentMonday, -7 * 11);
     const todayKey = getTodayKey();
-    const totalGoal = state.goals.pushups + state.goals.pullups + state.goals.squats;
-    const targetForFilter = filterEx ? state.goals[filterEx.id] : totalGoal;
+    // Reference daily benchmark for heatmap intensity
+    const dailyBenchmark = filterEx.goalType === 'weekly'
+      ? Math.max(1, Math.round(filterEx.goal / Math.max(state.weeklyGoalDays, 3)))
+      : Math.max(1, filterEx.goal);
 
     let weeksHtml = '';
     for (let w = 0; w < 12; w++) {
@@ -712,17 +892,16 @@
           cellsHtml += `<span class="hm-cell hm-future"></span>`;
           continue;
         }
-        const dayData = dailyMap[key];
-        const val = dayData ? (historyFilter === 'all' ? dayData.total : dayData[historyFilter] || 0) : 0;
+        const val = dailyMap[key]?.[filterEx.id] || 0;
         let level = 0;
         if (val > 0) {
-          const ratio = val / Math.max(targetForFilter, 1);
+          const ratio = val / dailyBenchmark;
           if (ratio >= 1) level = 4;
           else if (ratio >= 0.65) level = 3;
           else if (ratio >= 0.3) level = 2;
           else level = 1;
         }
-        cellsHtml += `<button class="hm-cell hm-l${level}" data-hm-date="${key}" data-hm-val="${val}" aria-label="${formatShortDate(key)}: ${val} Wiederholungen"></button>`;
+        cellsHtml += `<button class="hm-cell hm-l${level}" data-hm-date="${key}" data-hm-val="${val}" aria-label="${formatShortDate(key)}: ${formatUnit(filterEx, val)}"></button>`;
       }
       weeksHtml += `<div class="hm-week-col">${cellsHtml}</div>`;
     }
@@ -730,31 +909,31 @@
 
     heatmapContainer.querySelectorAll('[data-hm-date]').forEach((cell) => {
       cell.addEventListener('click', () => {
-        const label = filterEx ? filterEx.name : 'Gesamt';
         document.getElementById('heatmap-tooltip').textContent =
-          `${formatShortDate(cell.dataset.hmDate)} · ${label}: ${cell.dataset.hmVal} Wdh.`;
+          `${formatShortDate(cell.dataset.hmDate)} · ${filterEx.name}: ${formatUnit(filterEx, cell.dataset.hmVal)}`;
       });
     });
 
-    // 4. Personal Records
+    // 5. Personal Records
     const recordsGrid = document.getElementById('records-grid');
-    recordsGrid.innerHTML = EXERCISES.map((ex) => {
+    recordsGrid.innerHTML = historyExercises.map((ex) => {
+      const c = getExColors(ex);
       const rec = getExerciseRecords(dailyMap, ex.id);
-      const avg = getSevenDayAverage(dailyMap, ex.id);
+      const avg = getActiveDayAverage(dailyMap, ex.id);
       return `
         <div class="record-row">
-          <div class="record-ex" style="color: ${ex.color};">${ex.name}</div>
+          <div class="record-ex" style="color: ${c.color};">${escapeHtml(ex.name)}</div>
           <div class="record-stat">
-            <span class="record-val">${rec.bestDay}</span>
+            <span class="record-val">${formatUnit(ex, rec.bestDay, true)}</span>
             <span class="record-lbl">Tages-PR</span>
           </div>
           <div class="record-stat">
-            <span class="record-val">${rec.maxSet}</span>
+            <span class="record-val">${formatUnit(ex, rec.maxSet, true)}</span>
             <span class="record-lbl">Max-Set</span>
           </div>
           <div class="record-stat">
-            <span class="record-val">${avg}</span>
-            <span class="record-lbl">7T-Schnitt</span>
+            <span class="record-val">${formatUnit(ex, avg, true)}</span>
+            <span class="record-lbl">Ø Tag</span>
           </div>
         </div>
       `;
@@ -763,15 +942,17 @@
 
   function renderMilestonesView(dailyMap) {
     const totals = {};
-    for (const ex of EXERCISES) {
-      const rec = getExerciseRecords(dailyMap, ex.id);
-      totals[ex.id] = rec.total;
+    for (const ex of state.exercises) {
+      totals[ex.id] = getExerciseRecords(dailyMap, ex.id).total;
     }
 
-    // Tangible Comparisons for all 3 exercises
+    // Tangible Comparisons for built-in exercises (if visible or has entries)
     const comparisonsEl = document.getElementById('comparisons-list');
-    comparisonsEl.innerHTML = EXERCISES.map((ex) => {
+    const compExercises = state.exercises.filter((ex) => COMPARISONS[ex.id] && (!ex.archived || totals[ex.id] > 0));
+
+    comparisonsEl.innerHTML = compExercises.map((ex) => {
       const cfg = COMPARISONS[ex.id];
+      const colors = getExColors(ex);
       const currentVal = +(totals[ex.id] * cfg.factor).toFixed(1);
       const lastLandmark = cfg.landmarks[cfg.landmarks.length - 1];
       const nextLandmark = cfg.landmarks.find((l) => currentVal < l.value) || lastLandmark;
@@ -788,16 +969,16 @@
         : `Nächstes Ziel: <strong>${nextLandmark.name}</strong> (${cfg.formatValue(nextLandmark.value)}) · noch ${cfg.formatValue(remaining)}`;
 
       return `
-        <div class="card" style="--ex-color: ${ex.color}; --ex-soft: ${ex.soft}; --ex-border: ${ex.border}; background: ${ex.soft}; border: 1.5px solid ${ex.border}; border-left: 5px solid ${ex.color};">
+        <div class="card" style="--ex-color: ${colors.color}; --ex-soft: ${colors.soft}; --ex-border: ${colors.border}; background: ${colors.soft}; border: 1.5px solid ${colors.border}; border-left: 5px solid ${colors.color};">
           <div class="card-header-row">
             <div>
               <h2 class="card-title">${cfg.emoji} ${cfg.title}</h2>
               <p class="card-subtitle">${cfg.subtitle}</p>
             </div>
-            <span class="altitude-value" style="color: ${ex.color};">${cfg.formatValue(currentVal)}</span>
+            <span class="altitude-value" style="color: ${colors.color};">${cfg.formatValue(currentVal)}</span>
           </div>
           <div class="progress-bar-bg" style="margin-top: 10px;">
-            <div class="progress-bar-fill" style="width: ${pct}%; background: ${ex.color};"></div>
+            <div class="progress-bar-fill" style="width: ${pct}%; background: ${colors.color};"></div>
           </div>
           <div class="altitude-next">${nextText}</div>
         </div>
@@ -805,34 +986,128 @@
     }).join('');
 
     // Milestones per Exercise
+    const milestoneExercises = state.exercises.filter((ex) => !ex.archived || totals[ex.id] > 0);
     const list = document.getElementById('milestones-list');
-    list.innerHTML = EXERCISES.map((ex) => {
-      const total = totals[ex.id];
-      const nextMs = ex.milestones.find((m) => total < m) || ex.milestones[ex.milestones.length - 1];
+    list.innerHTML = milestoneExercises.map((ex) => {
+      const colors = getExColors(ex);
+      const total = totals[ex.id] || 0;
+      const tiers = getExMilestones(ex);
+      const nextMs = tiers.find((m) => total < m) || tiers[tiers.length - 1];
       const pct = Math.min(100, Math.round((total / nextMs) * 100));
 
-      const badgesHtml = ex.milestones.map((m) => `
-        <span class="ms-badge ${total >= m ? 'unlocked' : ''}">${total >= m ? '✓ ' : ''}${formatNumber(m)}</span>
+      const badgesHtml = tiers.map((m) => `
+        <span class="ms-badge ${total >= m ? 'unlocked' : ''}">${total >= m ? '✓ ' : ''}${formatUnit(ex, m, true)}</span>
       `).join('');
 
       return `
-        <div class="card" style="--ex-color: ${ex.color}; --ex-soft: ${ex.soft}; --ex-border: ${ex.border}; border-left: 4px solid ${ex.color};">
+        <div class="card" style="--ex-color: ${colors.color}; --ex-soft: ${colors.soft}; --ex-border: ${colors.border}; border-left: 4px solid ${colors.color};">
           <div class="milestone-card-header">
             <div class="ex-title-group">
-              <div class="ex-icon-badge" style="width: 34px; height: 34px;">${ex.icon}</div>
+              <div class="ex-icon-badge" style="width: 34px; height: 34px;">${getExIcon(ex)}</div>
               <div>
-                <div class="card-title">${ex.name}</div>
-                <div class="card-subtitle">${formatNumber(total)} / ${formatNumber(nextMs)} Wdh. (${pct}%)</div>
+                <div class="card-title">${escapeHtml(ex.name)}</div>
+                <div class="card-subtitle">${formatNumber(total)} / ${formatNumber(nextMs)} ${unitLabel(ex)} (${pct}%)</div>
               </div>
             </div>
           </div>
           <div class="progress-bar-bg">
-            <div class="progress-bar-fill" style="width: ${pct}%; background: ${ex.color};"></div>
+            <div class="progress-bar-fill" style="width: ${pct}%; background: ${colors.color};"></div>
           </div>
           <div class="milestone-badges">${badgesHtml}</div>
         </div>
       `;
     }).join('');
+  }
+
+  // --- Settings & Exercise Manager ---
+  function renderSettingsExercisesList() {
+    const container = document.getElementById('settings-exercises-list');
+    container.innerHTML = state.exercises.map((ex) => {
+      const colors = getExColors(ex);
+      const goalPeriod = ex.goalType === 'weekly' ? 'Woche' : 'Tag';
+      return `
+        <div class="settings-ex-item ${ex.archived ? 'is-archived' : ''}">
+          <div class="settings-ex-left">
+            <span class="settings-ex-dot" style="background: ${colors.color};"></span>
+            <div style="min-width: 0;">
+              <div class="settings-ex-name">${escapeHtml(ex.name)} ${ex.archived ? '(ausgeblendet)' : ''}</div>
+              <div class="settings-ex-sub">${formatUnit(ex, ex.goal)} / ${goalPeriod} · [${ex.quickAdds.join(', ')}]</div>
+            </div>
+          </div>
+          <div class="settings-ex-actions">
+            <button type="button" class="btn-chip" data-edit-ex="${ex.id}">Bearbeiten</button>
+            <button type="button" class="btn-chip" data-archive-ex="${ex.id}">${ex.archived ? 'Einblenden' : 'Ausblenden'}</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    container.querySelectorAll('[data-edit-ex]').forEach((btn) => {
+      btn.addEventListener('click', () => openExerciseModal(btn.dataset.editEx));
+    });
+
+    container.querySelectorAll('[data-archive-ex]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const ex = getExerciseById(btn.dataset.archiveEx);
+        if (!ex) return;
+        ex.archived = !ex.archived;
+        saveState();
+        renderSettingsExercisesList();
+        renderAll();
+        showToast(ex.archived ? `${ex.name} ausgeblendet (Daten bleiben erhalten)` : `${ex.name} wieder eingeblendet`);
+      });
+    });
+  }
+
+  function renderColorPicker() {
+    const picker = document.getElementById('ex-color-picker');
+    picker.innerHTML = Object.entries(COLOR_PALETTE).map(([key, cfg]) => {
+      const hex = state.theme === 'dark' ? cfg.dark.color : cfg.light.color;
+      return `<button type="button" class="color-swatch ${key === selectedColorKey ? 'selected' : ''}" data-color-key="${key}" style="background: ${hex};" aria-label="${cfg.name}" title="${cfg.name}"></button>`;
+    }).join('');
+
+    picker.querySelectorAll('[data-color-key]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        selectedColorKey = btn.dataset.colorKey;
+        renderColorPicker();
+      });
+    });
+  }
+
+  function updateExerciseGoalLabel() {
+    const type = document.getElementById('ex-edit-goal-type').value;
+    const unit = document.getElementById('ex-edit-unit').value;
+    const unitTxt = unit === 'sec' ? 'Sek.' : 'Wdh.';
+    document.getElementById('ex-edit-goal-label').textContent =
+      `${type === 'weekly' ? 'Wochenziel' : 'Tagesziel'} (${unitTxt})`;
+  }
+
+  function openExerciseModal(exerciseId = null) {
+    editingExerciseId = exerciseId;
+    const ex = exerciseId ? getExerciseById(exerciseId) : null;
+
+    document.getElementById('exercise-modal-title').textContent = ex ? `${ex.name} bearbeiten` : 'Neue Übung hinzufügen';
+    document.getElementById('ex-edit-name').value = ex ? ex.name : '';
+    document.getElementById('ex-edit-unit').value = ex ? ex.unit : 'reps';
+    document.getElementById('ex-edit-goal-type').value = ex ? ex.goalType : 'weekly';
+    document.getElementById('ex-edit-goal').value = ex ? ex.goal : 100;
+    document.getElementById('ex-edit-quickadds').value = ex ? ex.quickAdds.join(', ') : '5, 10, 15, 20';
+
+    // Pick a nice unused color for new exercises
+    if (ex) {
+      selectedColorKey = ex.colorKey || 'blue';
+    } else {
+      const used = new Set(state.exercises.map((e) => e.colorKey));
+      const free = Object.keys(COLOR_PALETTE).find((k) => !used.has(k));
+      selectedColorKey = free || 'blue';
+    }
+
+    renderColorPicker();
+    updateExerciseGoalLabel();
+    document.getElementById('exercise-modal').classList.remove('hidden');
+    if (!ex) {
+      setTimeout(() => document.getElementById('ex-edit-name').focus(), 60);
+    }
   }
 
   // --- Modals & Navigation ---
@@ -848,8 +1123,15 @@
 
   function openCustomModal(exerciseId) {
     customModalExerciseId = exerciseId;
-    const ex = EXERCISES.find((x) => x.id === exerciseId);
+    const ex = getExerciseById(exerciseId);
+    if (!ex) return;
     document.getElementById('custom-modal-title').textContent = `${ex.name} hinzufügen`;
+    const labelEl = document.querySelector('label[for="custom-reps-input"]');
+    if (labelEl) {
+      labelEl.textContent = ex.unit === 'sec'
+        ? 'Wie viele Sekunden hast du geschafft?'
+        : 'Wie viele Wiederholungen hast du geschafft?';
+    }
     const input = document.getElementById('custom-reps-input');
     input.value = '';
     document.getElementById('custom-modal').classList.remove('hidden');
@@ -862,15 +1144,8 @@
   }
 
   function openSettingsModal() {
-    document.getElementById('goal-pushups').value = state.goals.pushups;
-    document.getElementById('goal-pullups').value = state.goals.pullups;
-    document.getElementById('goal-squats').value = state.goals.squats;
+    renderSettingsExercisesList();
     document.getElementById('goal-weekly-days').value = state.weeklyGoalDays;
-
-    document.getElementById('qa-pushups').value = (state.quickAdds.pushups || DEFAULT_STATE.quickAdds.pushups).join(', ');
-    document.getElementById('qa-pullups').value = (state.quickAdds.pullups || DEFAULT_STATE.quickAdds.pullups).join(', ');
-    document.getElementById('qa-squats').value = (state.quickAdds.squats || DEFAULT_STATE.quickAdds.squats).join(', ');
-
     document.getElementById('toggle-auto-levelup').checked = Boolean(state.autoLevelUp);
     document.getElementById('input-levelup-days').value = state.levelUpDays || 5;
     updateLevelUpDaysRow();
@@ -906,7 +1181,7 @@
   // --- Toasts ---
   function showToast(message, { celebrate = false, undoId = null } = {}) {
     const container = document.getElementById('toast-container');
-    container.innerHTML = ''; // Keep it clean (latest toast)
+    container.innerHTML = '';
     const toast = document.createElement('div');
     toast.className = `toast ${celebrate ? 'toast-celebrate' : ''}`;
     toast.innerHTML = `<span>${message}</span>`;
@@ -935,7 +1210,7 @@
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    const colors = ['#ff6b4a', '#2dd4bf', '#a78bfa', '#38bdf8', '#facc15', '#34d399'];
+    const colors = ['#ea580c', '#0d9488', '#7c3aed', '#2563eb', '#facc15', '#10b981'];
     const particles = Array.from({ length: 55 }, () => ({
       x: canvas.width * (0.2 + Math.random() * 0.6),
       y: canvas.height * 0.25,
@@ -997,11 +1272,8 @@
       try {
         const parsed = JSON.parse(reader.result);
         if (!Array.isArray(parsed.entries)) throw new Error('Invalid format');
-        state = {
-          ...structuredClone(DEFAULT_STATE),
-          ...parsed,
-          goals: { ...DEFAULT_STATE.goals, ...(parsed.goals || {}) }
-        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
+        state = loadState();
         saveState();
         applyTheme();
         renderAll();
@@ -1018,37 +1290,31 @@
     const today = getEffectiveDate();
     const demoEntries = [];
     for (let i = 35; i >= 1; i--) {
-      // Skip ~25% of days for realistic pattern, keep last 5 days active
       if (i > 5 && Math.random() < 0.28) continue;
       const d = addDays(today, -i);
       const dateKey = toDateKey(d);
       const baseTs = d.getTime() + 9 * 3600 * 1000;
 
-      const pushSets = i <= 5 ? [10, 10, 12] : [8, 8, 10].slice(0, 1 + Math.floor(Math.random() * 3));
-      const pullSets = i <= 5 ? [3, 4, 3] : [2, 3, 3].slice(0, 1 + Math.floor(Math.random() * 3));
-      const squatSets = i <= 5 ? [15, 15, 15] : [10, 15, 15].slice(0, 1 + Math.floor(Math.random() * 3));
+      // Realistic rotating muscle groups
+      const doPush = i % 2 === 0 || i <= 5;
+      const doPull = i % 2 === 1 || i <= 5;
+      const doSquat = i % 3 !== 0 || i <= 5;
 
-      pushSets.forEach((reps, idx) => demoEntries.push({
-        id: `demo-pu-${i}-${idx}`,
-        date: dateKey,
-        ts: baseTs + idx * 7200 * 1000,
-        exercise: 'pushups',
-        reps
-      }));
-      pullSets.forEach((reps, idx) => demoEntries.push({
-        id: `demo-pl-${i}-${idx}`,
-        date: dateKey,
-        ts: baseTs + (idx + 0.5) * 7200 * 1000,
-        exercise: 'pullups',
-        reps
-      }));
-      squatSets.forEach((reps, idx) => demoEntries.push({
-        id: `demo-sq-${i}-${idx}`,
-        date: dateKey,
-        ts: baseTs + (idx + 0.8) * 7200 * 1000,
-        exercise: 'squats',
-        reps
-      }));
+      if (doPush) {
+        [10, 12, 12].forEach((reps, idx) => demoEntries.push({
+          id: `demo-pu-${i}-${idx}`, date: dateKey, ts: baseTs + idx * 7200 * 1000, exercise: 'pushups', reps
+        }));
+      }
+      if (doPull) {
+        [3, 4, 4].forEach((reps, idx) => demoEntries.push({
+          id: `demo-pl-${i}-${idx}`, date: dateKey, ts: baseTs + (idx + 0.5) * 7200 * 1000, exercise: 'pullups', reps
+        }));
+      }
+      if (doSquat) {
+        [15, 15, 20].forEach((reps, idx) => demoEntries.push({
+          id: `demo-sq-${i}-${idx}`, date: dateKey, ts: baseTs + (idx + 0.8) * 7200 * 1000, exercise: 'squats', reps
+        }));
+      }
     }
 
     state.entries = demoEntries;
@@ -1061,20 +1327,8 @@
 
   // --- Event Listeners ---
   function initEvents() {
-    // Bottom nav
     document.querySelectorAll('.nav-item').forEach((btn) => {
       btn.addEventListener('click', () => switchTab(btn.dataset.tab));
-    });
-
-    // History filter pills
-    document.querySelectorAll('#history-filter-pills .filter-pill').forEach((pill) => {
-      pill.addEventListener('click', () => {
-        historyFilter = pill.dataset.filter;
-        document.querySelectorAll('#history-filter-pills .filter-pill').forEach((p) => {
-          p.classList.toggle('active', p === pill);
-        });
-        renderHistoryView(getDailyMap());
-      });
     });
 
     // Custom Reps Modal
@@ -1087,25 +1341,58 @@
       }
     });
 
+    // Exercise Editor Modal
+    document.getElementById('btn-add-exercise').addEventListener('click', () => openExerciseModal(null));
+    document.getElementById('ex-edit-goal-type').addEventListener('change', updateExerciseGoalLabel);
+    document.getElementById('ex-edit-unit').addEventListener('change', updateExerciseGoalLabel);
+
+    document.getElementById('exercise-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = document.getElementById('ex-edit-name').value.trim();
+      if (!name) return;
+      const unit = document.getElementById('ex-edit-unit').value === 'sec' ? 'sec' : 'reps';
+      const goalType = document.getElementById('ex-edit-goal-type').value === 'daily' ? 'daily' : 'weekly';
+      const goal = Math.max(1, parseInt(document.getElementById('ex-edit-goal').value, 10) || 100);
+      const quickAdds = parseQuickAdds(document.getElementById('ex-edit-quickadds').value, unit === 'sec' ? [15, 30, 45, 60] : [5, 10, 15, 20]);
+
+      if (editingExerciseId) {
+        const ex = getExerciseById(editingExerciseId);
+        if (ex) {
+          ex.name = name;
+          ex.colorKey = selectedColorKey;
+          ex.unit = unit;
+          ex.goalType = goalType;
+          ex.goal = goal;
+          ex.quickAdds = quickAdds;
+        }
+        showToast(`${name} aktualisiert ✓`);
+      } else {
+        const newEx = {
+          id: `ex_${Date.now().toString(36)}`,
+          name,
+          colorKey: selectedColorKey,
+          unit,
+          goalType,
+          goal,
+          quickAdds,
+          archived: false
+        };
+        state.exercises.push(newEx);
+        showToast(`${name} hinzugefügt ✓`, { celebrate: true });
+      }
+
+      saveState();
+      renderSettingsExercisesList();
+      renderAll();
+      closeModal('exercise-modal');
+    });
+
     // Settings Modal
     document.getElementById('btn-open-settings').addEventListener('click', openSettingsModal);
     document.getElementById('toggle-auto-levelup').addEventListener('change', updateLevelUpDaysRow);
 
     document.getElementById('btn-save-settings').addEventListener('click', () => {
-      const pu = Math.max(1, parseInt(document.getElementById('goal-pushups').value, 10) || 30);
-      const pl = Math.max(1, parseInt(document.getElementById('goal-pullups').value, 10) || 10);
-      const sq = Math.max(1, parseInt(document.getElementById('goal-squats').value, 10) || 40);
-      const wd = Math.min(7, Math.max(1, parseInt(document.getElementById('goal-weekly-days').value, 10) || 5));
-
-      state.goals = { pushups: pu, pullups: pl, squats: sq };
-      state.weeklyGoalDays = wd;
-
-      state.quickAdds = {
-        pushups: parseQuickAdds(document.getElementById('qa-pushups').value, DEFAULT_STATE.quickAdds.pushups),
-        pullups: parseQuickAdds(document.getElementById('qa-pullups').value, DEFAULT_STATE.quickAdds.pullups),
-        squats: parseQuickAdds(document.getElementById('qa-squats').value, DEFAULT_STATE.quickAdds.squats)
-      };
-
+      state.weeklyGoalDays = Math.min(7, Math.max(1, parseInt(document.getElementById('goal-weekly-days').value, 10) || 5));
       state.autoLevelUp = document.getElementById('toggle-auto-levelup').checked;
       state.levelUpDays = Math.min(30, Math.max(2, parseInt(document.getElementById('input-levelup-days').value, 10) || 5));
       state.dayCutoffHour = parseInt(document.getElementById('select-day-cutoff').value, 10) || 0;
@@ -1126,6 +1413,8 @@
       state.theme = state.theme === 'dark' ? 'light' : 'dark';
       saveState();
       applyTheme();
+      renderSettingsExercisesList();
+      renderAll();
     });
 
     document.getElementById('btn-export-data').addEventListener('click', exportData);
@@ -1139,7 +1428,7 @@
     document.getElementById('btn-load-demo').addEventListener('click', loadDemoData);
 
     document.getElementById('btn-reset-data').addEventListener('click', () => {
-      if (confirm('Wirklich alle gespeicherten Wiederholungen löschen?')) {
+      if (confirm('Wirklich alle gespeicherten Wiederholungen und eigenen Übungen löschen?')) {
         state = structuredClone(DEFAULT_STATE);
         saveState();
         applyTheme();
@@ -1149,7 +1438,6 @@
       }
     });
 
-    // Modal close buttons & backdrop clicks
     document.querySelectorAll('.modal-close').forEach((btn) => {
       btn.addEventListener('click', () => closeModal(btn.dataset.close));
     });
