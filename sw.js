@@ -1,4 +1,4 @@
-const CACHE_NAME = 'repflow-v7';
+const CACHE_NAME = 'repflow-v8';
 const ASSETS = [
   './',
   './index.html',

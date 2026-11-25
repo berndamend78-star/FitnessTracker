@@ -45,15 +45,60 @@
     }
   ];
 
-  const ALTITUDE_LANDMARKS = [
-    { name: 'Brandenburger Tor', meters: 26 },
-    { name: 'Freiheitsstatue', meters: 93 },
-    { name: 'Kölner Dom', meters: 157 },
-    { name: 'Eiffelturm', meters: 330 },
-    { name: 'Burj Khalifa', meters: 828 },
-    { name: 'Zugspitze', meters: 2962 },
-    { name: 'Mount Everest', meters: 8849 }
-  ];
+  const COMPARISONS = {
+    pushups: {
+      emoji: '🏋️',
+      title: 'Weggedrücktes Gewicht',
+      subtitle: '50 kg pro Liegestütz',
+      factor: 50,
+      formatValue: (kg) => kg >= 1000
+        ? `${(kg / 1000).toLocaleString('de-DE', { maximumFractionDigits: 2 })} t`
+        : `${formatNumber(kg)} kg`,
+      maxReachedText: '🏆 Du hast einen Airbus A380 weggedrückt!',
+      landmarks: [
+        { name: 'Konzertflügel', value: 500 },
+        { name: 'Kleinwagen', value: 1500 },
+        { name: 'Afrikanischer Elefant', value: 5000 },
+        { name: 'Linienbus', value: 12000 },
+        { name: 'Kampfpanzer', value: 60000 },
+        { name: 'Blauwal', value: 150000 },
+        { name: 'Airbus A380', value: 500000 }
+      ]
+    },
+    pullups: {
+      emoji: '🏔️',
+      title: 'Klimmzug-Höhenmeter',
+      subtitle: '0,5 m pro Klimmzug erklommen',
+      factor: 0.5,
+      formatValue: (m) => `${Number(m.toFixed(1)).toLocaleString('de-DE')} m`,
+      maxReachedText: '🏆 Du hast den Mount Everest erklommen!',
+      landmarks: [
+        { name: 'Brandenburger Tor', value: 26 },
+        { name: 'Freiheitsstatue', value: 93 },
+        { name: 'Kölner Dom', value: 157 },
+        { name: 'Eiffelturm', value: 330 },
+        { name: 'Burj Khalifa', value: 828 },
+        { name: 'Zugspitze', value: 2962 },
+        { name: 'Mount Everest', value: 8849 }
+      ]
+    },
+    squats: {
+      emoji: '🪜',
+      title: 'Bezwungene Treppenstufen',
+      subtitle: '3 Stufen pro Kniebeuge',
+      factor: 3,
+      formatValue: (steps) => `${formatNumber(steps)} Stufen`,
+      maxReachedText: '🏆 Du hast den Mount Everest in Stufen bezwungen!',
+      landmarks: [
+        { name: 'Leuchtturm', value: 150 },
+        { name: 'Kölner Dom-Turm', value: 533 },
+        { name: 'Eiffelturm zu Fuß', value: 1665 },
+        { name: 'Burj Khalifa', value: 2909 },
+        { name: 'Niesen-Treppe (Weltrekord)', value: 11674 },
+        { name: 'Mount Everest in Stufen', value: 50000 }
+      ]
+    }
+  };
 
   const DEFAULT_STATE = {
     entries: [], // { id, date: 'YYYY-MM-DD', ts: number, exercise: 'pushups'|'pullups'|'squats', reps: number }
@@ -723,20 +768,41 @@
       totals[ex.id] = rec.total;
     }
 
-    // Pull-up Altitude
-    const meters = +(totals.pullups * 0.5).toFixed(1);
-    document.getElementById('altitude-meters').textContent = `${meters.toLocaleString('de-DE')} m`;
-    const nextLandmark = ALTITUDE_LANDMARKS.find((l) => meters < l.meters) || ALTITUDE_LANDMARKS[ALTITUDE_LANDMARKS.length - 1];
-    const prevLandmarkMeters = ALTITUDE_LANDMARKS.filter((l) => l.meters <= meters).pop()?.meters || 0;
-    const altPct = meters >= nextLandmark.meters
-      ? 100
-      : Math.min(100, Math.round(((meters - prevLandmarkMeters) / (nextLandmark.meters - prevLandmarkMeters)) * 100));
+    // Tangible Comparisons for all 3 exercises
+    const comparisonsEl = document.getElementById('comparisons-list');
+    comparisonsEl.innerHTML = EXERCISES.map((ex) => {
+      const cfg = COMPARISONS[ex.id];
+      const currentVal = +(totals[ex.id] * cfg.factor).toFixed(1);
+      const lastLandmark = cfg.landmarks[cfg.landmarks.length - 1];
+      const nextLandmark = cfg.landmarks.find((l) => currentVal < l.value) || lastLandmark;
+      const reachedLandmarks = cfg.landmarks.filter((l) => l.value <= currentVal);
+      const prevVal = reachedLandmarks.length ? reachedLandmarks[reachedLandmarks.length - 1].value : 0;
 
-    document.getElementById('altitude-bar').style.width = `${altPct}%`;
-    document.getElementById('altitude-next').textContent =
-      meters >= ALTITUDE_LANDMARKS[ALTITUDE_LANDMARKS.length - 1].meters
-        ? '🏆 Du hast den Mount Everest erklommen!'
-        : `Nächstes Ziel: ${nextLandmark.name} (${formatNumber(nextLandmark.meters)} m) · noch ${(nextLandmark.meters - meters).toFixed(1).replace('.', ',')} m`;
+      const pct = currentVal >= lastLandmark.value
+        ? 100
+        : Math.min(100, Math.round(((currentVal - prevVal) / (nextLandmark.value - prevVal)) * 100));
+
+      const remaining = +(nextLandmark.value - currentVal).toFixed(1);
+      const nextText = currentVal >= lastLandmark.value
+        ? cfg.maxReachedText
+        : `Nächstes Ziel: <strong>${nextLandmark.name}</strong> (${cfg.formatValue(nextLandmark.value)}) · noch ${cfg.formatValue(remaining)}`;
+
+      return `
+        <div class="card" style="--ex-color: ${ex.color}; --ex-soft: ${ex.soft}; --ex-border: ${ex.border}; background: ${ex.soft}; border: 1.5px solid ${ex.border}; border-left: 5px solid ${ex.color};">
+          <div class="card-header-row">
+            <div>
+              <h2 class="card-title">${cfg.emoji} ${cfg.title}</h2>
+              <p class="card-subtitle">${cfg.subtitle}</p>
+            </div>
+            <span class="altitude-value" style="color: ${ex.color};">${cfg.formatValue(currentVal)}</span>
+          </div>
+          <div class="progress-bar-bg" style="margin-top: 10px;">
+            <div class="progress-bar-fill" style="width: ${pct}%; background: ${ex.color};"></div>
+          </div>
+          <div class="altitude-next">${nextText}</div>
+        </div>
+      `;
+    }).join('');
 
     // Milestones per Exercise
     const list = document.getElementById('milestones-list');

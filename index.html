@@ -11,7 +11,7 @@
   <link rel="manifest" href="./manifest.webmanifest" />
   <link rel="icon" type="image/svg+xml" href="./icon.svg" />
   <link rel="apple-touch-icon" href="./icon.svg" />
-  <link rel="stylesheet" href="./styles.css?v=7" />
+  <link rel="stylesheet" href="./styles.css?v=8" />
 </head>
 <body>
   <div class="app-shell">
@@ -128,21 +128,14 @@
 
       <!-- TAB 3: ERFOLGE / MILESTONES -->
       <section id="view-milestones" class="tab-view" aria-label="Meilensteine">
-        <!-- Fun Pull-up Altitude Card -->
-        <div class="card altitude-card">
-          <div class="card-header-row">
-            <div>
-              <h2 class="card-title">🏔️ Klimmzug-Höhenmeter</h2>
-              <p id="altitude-subtitle" class="card-subtitle">0,5 m pro Klimmzug erklommen</p>
-            </div>
-            <span id="altitude-meters" class="altitude-value">0 m</span>
-          </div>
-          <div class="progress-bar-bg" style="margin-top: 10px;">
-            <div id="altitude-bar" class="progress-bar-fill" style="width: 0%; background: var(--color-pullups);"></div>
-          </div>
-          <div id="altitude-next" class="altitude-next">Nächstes Ziel: Freiheitsstatue (93 m)</div>
+        <div class="section-header" style="margin-bottom: -4px;">
+          <h2 class="section-title">Greifbare Vergleiche</h2>
         </div>
+        <div id="comparisons-list" class="milestones-list"></div>
 
+        <div class="section-header" style="margin-top: 6px; margin-bottom: -4px;">
+          <h2 class="section-title">Wiederholungs-Meilensteine</h2>
+        </div>
         <!-- Exercise Milestones -->
         <div id="milestones-list" class="milestones-list"></div>
       </section>
@@ -320,6 +313,6 @@
   <!-- Confetti Canvas -->
   <canvas id="confetti-canvas" class="confetti-canvas" aria-hidden="true"></canvas>
 
-  <script src="./app.js?v=7"></script>
+  <script src="./app.js?v=8"></script>
 </body>
 </html>
