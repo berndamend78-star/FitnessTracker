@@ -981,6 +981,11 @@ html, body {
   padding: 12px;
 }
 
+.modal-backdrop-top {
+  align-items: flex-start;
+  padding-top: max(68px, 14vh);
+}
+
 .modal-backdrop.hidden {
   display: none;
 }
