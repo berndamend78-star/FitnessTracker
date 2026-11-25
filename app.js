@@ -814,9 +814,12 @@
     }
 
     const pillsContainer = document.getElementById('history-filter-pills');
-    pillsContainer.innerHTML = historyExercises.map((ex) => `
-      <button class="filter-pill ${ex.id === historyFilter ? 'active' : ''}" data-filter="${ex.id}">${escapeHtml(ex.name)}</button>
-    `).join('');
+    pillsContainer.innerHTML = historyExercises.map((ex) => {
+      const c = getExColors(ex);
+      return `
+        <button class="filter-pill ${ex.id === historyFilter ? 'active' : ''}" data-filter="${ex.id}" style="--pill-color: ${c.color}; --pill-soft: ${c.soft}; --pill-border: ${c.border};">${escapeHtml(ex.name)}</button>
+      `;
+    }).join('');
 
     pillsContainer.querySelectorAll('.filter-pill').forEach((pill) => {
       pill.addEventListener('click', () => {

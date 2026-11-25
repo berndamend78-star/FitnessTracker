@@ -656,22 +656,23 @@ html, body {
 }
 
 .filter-pill {
-  border: 1px solid var(--border);
-  background: var(--surface);
-  color: var(--text-muted);
+  border: 1.5px solid var(--pill-border, var(--border));
+  background: var(--pill-soft, var(--surface));
+  color: var(--pill-color, var(--text-muted));
   padding: 7px 14px;
   border-radius: 999px;
   font-size: 0.82rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   white-space: nowrap;
   transition: all 0.15s ease;
 }
 
 .filter-pill.active {
-  background: var(--text);
-  color: var(--bg);
-  border-color: var(--text);
+  background: var(--pill-color, var(--text));
+  color: #ffffff;
+  border-color: var(--pill-color, var(--text));
+  box-shadow: 0 3px 10px color-mix(in srgb, var(--pill-color, var(--text)) 32%, transparent);
 }
 
 /* Bar Chart */
