@@ -715,13 +715,17 @@
           ? `<div class="ex-progress-row"><span>Woche: <strong>${formatUnit(ex, weekVal, true)}</strong> / ${formatUnit(ex, goal, true)}</span><span>${pct}%</span></div>`
           : '';
 
+        const timerBtnHtml = ex.unit === 'sec'
+          ? `<button type="button" class="ex-timer-btn" data-timer-ex="${ex.id}" title="Timer für ${escapeHtml(ex.name)} starten">⏱️ Timer</button>`
+          : '';
+
         return `
           <article class="exercise-card ${goalReached ? 'goal-reached' : ''}" data-ex="${ex.id}" style="--ex-color: ${colors.color}; --ex-soft: ${colors.soft}; --ex-border: ${colors.border};">
             <div class="ex-top">
               <div class="ex-title-group">
                 <div class="ex-icon-badge">${getExIcon(ex)}</div>
                 <div>
-                  <div class="ex-name">${escapeHtml(ex.name)}</div>
+                  <div class="ex-name">${escapeHtml(ex.name)}${timerBtnHtml}</div>
                   <div class="ex-meta">${metaText}</div>
                 </div>
               </div>
@@ -749,6 +753,10 @@
 
       cardsContainer.querySelectorAll('[data-custom-ex]').forEach((btn) => {
         btn.addEventListener('click', () => openCustomModal(btn.dataset.customEx));
+      });
+
+      cardsContainer.querySelectorAll('[data-timer-ex]').forEach((btn) => {
+        btn.addEventListener('click', () => openTimerModal(btn.dataset.timerEx));
       });
     }
 
@@ -1162,7 +1170,300 @@
   }
 
   function closeModal(id) {
+    if (id === 'timer-modal') {
+      stopTimerCompletely();
+    }
     document.getElementById(id).classList.add('hidden');
+  }
+
+  // --- Hold Timer (Stopwatch & Countdown + 3s Prep + Audio + Wake Lock) ---
+  const TIMER_RING_CIRCUMFERENCE = 2 * Math.PI * 78;
+  const timerState = {
+    mode: 'stopwatch', // 'stopwatch' | 'countdown'
+    targetSec: 60,
+    elapsedMs: 0,
+    status: 'idle', // 'idle' | 'prep' | 'running' | 'paused' | 'done'
+    prepRemaining: 0,
+    startedAt: 0,
+    intervalId: null,
+    prepTimeoutId: null,
+    exerciseId: null,
+    audioCtx: null,
+    wakeLock: null
+  };
+
+  function formatTimerClock(totalSec) {
+    const s = Math.max(0, Math.floor(totalSec));
+    const mins = Math.floor(s / 60);
+    const secs = s % 60;
+    return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+  }
+
+  function playBeep(freq = 660, durationMs = 110, volume = 0.16) {
+    const soundOn = document.getElementById('timer-sound-toggle')?.checked;
+    if (!soundOn) return;
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      if (!timerState.audioCtx) {
+        timerState.audioCtx = new AudioCtx();
+      }
+      if (timerState.audioCtx.state === 'suspended') {
+        timerState.audioCtx.resume();
+      }
+      const osc = timerState.audioCtx.createOscillator();
+      const gain = timerState.audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(volume, timerState.audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, timerState.audioCtx.currentTime + durationMs / 1000);
+      osc.connect(gain);
+      gain.connect(timerState.audioCtx.destination);
+      osc.start();
+      osc.stop(timerState.audioCtx.currentTime + durationMs / 1000);
+    } catch {}
+  }
+
+  async function requestWakeLock() {
+    try {
+      if ('wakeLock' in navigator && !timerState.wakeLock) {
+        timerState.wakeLock = await navigator.wakeLock.request('screen');
+      }
+    } catch {}
+  }
+
+  function releaseWakeLock() {
+    try {
+      if (timerState.wakeLock) {
+        timerState.wakeLock.release();
+        timerState.wakeLock = null;
+      }
+    } catch {}
+  }
+
+  function setTimerRing(ratio, colorOverride = null) {
+    const ring = document.getElementById('timer-ring-fill');
+    if (!ring) return;
+    const clamped = Math.min(Math.max(ratio, 0), 1);
+    ring.style.strokeDasharray = `${TIMER_RING_CIRCUMFERENCE}`;
+    ring.style.strokeDashoffset = `${TIMER_RING_CIRCUMFERENCE * (1 - clamped)}`;
+    ring.style.stroke = colorOverride || 'var(--accent)';
+  }
+
+  function getTimerElapsedSeconds() {
+    let ms = timerState.elapsedMs;
+    if (timerState.status === 'running') {
+      ms += Date.now() - timerState.startedAt;
+    }
+    return Math.floor(ms / 1000);
+  }
+
+  function renderTimerUI() {
+    const displayEl = document.getElementById('timer-display');
+    const statusEl = document.getElementById('timer-status-text');
+    const startBtn = document.getElementById('btn-timer-start');
+    const presetsWrap = document.getElementById('timer-presets-wrap');
+    const logBox = document.getElementById('timer-log-box');
+
+    // Mode buttons & presets visibility
+    document.querySelectorAll('[data-timer-mode]').forEach((btn) => {
+      btn.classList.toggle('active', btn.dataset.timerMode === timerState.mode);
+    });
+    presetsWrap.classList.toggle('hidden', timerState.mode !== 'countdown');
+
+    const activeEx = timerState.exerciseId ? getExerciseById(timerState.exerciseId) : null;
+    const accentColor = activeEx ? getExColors(activeEx).color : 'var(--accent)';
+
+    const elapsedSec = getTimerElapsedSeconds();
+
+    if (timerState.status === 'prep') {
+      displayEl.textContent = String(timerState.prepRemaining);
+      statusEl.textContent = 'Mach dich bereit…';
+      startBtn.textContent = 'Abbrechen';
+      setTimerRing((3 - timerState.prepRemaining + 1) / 3, '#f59e0b');
+    } else if (timerState.mode === 'stopwatch') {
+      displayEl.textContent = formatTimerClock(elapsedSec);
+      const cycleRatio = elapsedSec === 0 ? 0 : ((elapsedSec % 60) || 60) / 60;
+      setTimerRing(cycleRatio, accentColor);
+      if (timerState.status === 'running') {
+        statusEl.textContent = 'Läuft…';
+        startBtn.textContent = 'Pause';
+      } else if (timerState.status === 'paused') {
+        statusEl.textContent = 'Pausiert';
+        startBtn.textContent = 'Weiter';
+      } else {
+        statusEl.textContent = 'Bereit';
+        startBtn.textContent = 'Start';
+      }
+    } else {
+      // Countdown mode
+      const remainingSec = Math.max(0, timerState.targetSec - elapsedSec);
+      displayEl.textContent = formatTimerClock(remainingSec);
+      const ratio = timerState.targetSec > 0 ? remainingSec / timerState.targetSec : 0;
+      setTimerRing(ratio, timerState.status === 'done' ? 'var(--success)' : accentColor);
+      if (timerState.status === 'running') {
+        statusEl.textContent = 'Halten…';
+        startBtn.textContent = 'Pause';
+      } else if (timerState.status === 'paused') {
+        statusEl.textContent = 'Pausiert';
+        startBtn.textContent = 'Weiter';
+      } else if (timerState.status === 'done') {
+        statusEl.textContent = 'Geschafft! 🎉';
+        startBtn.textContent = 'Nochmal';
+      } else {
+        statusEl.textContent = 'Bereit';
+        startBtn.textContent = 'Start';
+      }
+    }
+
+    // Direct 1-tap log box when stopped/paused/done with >= 1 sec elapsed
+    const secExercises = getVisibleExercises().filter((e) => e.unit === 'sec');
+    const canLog = elapsedSec >= 1 && (timerState.status === 'paused' || timerState.status === 'done');
+
+    if (canLog && secExercises.length > 0) {
+      if (!timerState.exerciseId || !secExercises.some((e) => e.id === timerState.exerciseId)) {
+        timerState.exerciseId = secExercises[0].id;
+      }
+      const chosen = getExerciseById(timerState.exerciseId) || secExercises[0];
+      const selectHtml = secExercises.length > 1
+        ? `<select id="timer-log-select" class="select-setting-input" style="flex: 1;">${secExercises.map((e) => `<option value="${e.id}" ${e.id === chosen.id ? 'selected' : ''}>${escapeHtml(e.name)}</option>`).join('')}</select>`
+        : '';
+
+      logBox.innerHTML = `
+        ${selectHtml ? `<div class="timer-log-row">${selectHtml}</div>` : ''}
+        <button type="button" id="btn-timer-log-save" class="btn-primary" style="width: 100%; background: ${getExColors(chosen).color};">+${elapsedSec}s bei ${escapeHtml(chosen.name)} eintragen</button>
+      `;
+      logBox.classList.remove('hidden');
+
+      const sel = document.getElementById('timer-log-select');
+      if (sel) {
+        sel.onchange = () => {
+          timerState.exerciseId = sel.value;
+          renderTimerUI();
+        };
+      }
+      document.getElementById('btn-timer-log-save').onclick = () => {
+        logReps(chosen.id, elapsedSec);
+        closeModal('timer-modal');
+      };
+    } else if (canLog && secExercises.length === 0) {
+      logBox.innerHTML = `<div class="setting-hint" style="text-align: center;">Gemessen: <strong>${elapsedSec} Sek.</strong> · Tipp: Lege unter ⚙️ eine Sekunden-Übung (z. B. Plank) an, um Zeiten direkt zu speichern.</div>`;
+      logBox.classList.remove('hidden');
+    } else {
+      logBox.classList.add('hidden');
+    }
+  }
+
+  function clearTimerHandles() {
+    if (timerState.intervalId) {
+      clearInterval(timerState.intervalId);
+      timerState.intervalId = null;
+    }
+    if (timerState.prepTimeoutId) {
+      clearTimeout(timerState.prepTimeoutId);
+      timerState.prepTimeoutId = null;
+    }
+  }
+
+  function stopTimerCompletely() {
+    clearTimerHandles();
+    releaseWakeLock();
+    if (timerState.status === 'running') {
+      timerState.elapsedMs += Date.now() - timerState.startedAt;
+      timerState.status = 'paused';
+    } else if (timerState.status === 'prep') {
+      timerState.status = 'idle';
+    }
+  }
+
+  function resetTimer() {
+    clearTimerHandles();
+    releaseWakeLock();
+    timerState.elapsedMs = 0;
+    timerState.status = 'idle';
+    timerState.prepRemaining = 0;
+    renderTimerUI();
+  }
+
+  function beginRunningTimer() {
+    timerState.status = 'running';
+    timerState.startedAt = Date.now();
+    playBeep(880, 180, 0.2);
+    vibrate(35);
+    requestWakeLock();
+    renderTimerUI();
+
+    clearTimerHandles();
+    timerState.intervalId = setInterval(() => {
+      const elapsedSec = getTimerElapsedSeconds();
+      if (timerState.mode === 'countdown' && elapsedSec >= timerState.targetSec) {
+        timerState.elapsedMs = timerState.targetSec * 1000;
+        timerState.status = 'done';
+        clearTimerHandles();
+        releaseWakeLock();
+        playBeep(880, 150, 0.22);
+        setTimeout(() => playBeep(1175, 240, 0.22), 180);
+        vibrate([40, 60, 40, 60, 80]);
+        renderTimerUI();
+        return;
+      }
+      renderTimerUI();
+    }, 200);
+  }
+
+  function startOrPauseTimer() {
+    if (timerState.status === 'running') {
+      timerState.elapsedMs += Date.now() - timerState.startedAt;
+      timerState.status = 'paused';
+      clearTimerHandles();
+      releaseWakeLock();
+      vibrate(15);
+      renderTimerUI();
+      return;
+    }
+
+    if (timerState.status === 'prep') {
+      resetTimer();
+      return;
+    }
+
+    if (timerState.status === 'done') {
+      timerState.elapsedMs = 0;
+      timerState.status = 'idle';
+    }
+
+    const usePrep = timerState.status === 'idle' && document.getElementById('timer-prep-toggle')?.checked;
+    if (usePrep) {
+      timerState.status = 'prep';
+      timerState.prepRemaining = 3;
+      playBeep(520, 90, 0.14);
+      vibrate(15);
+      renderTimerUI();
+
+      const stepPrep = () => {
+        timerState.prepRemaining--;
+        if (timerState.prepRemaining > 0) {
+          playBeep(520, 90, 0.14);
+          vibrate(15);
+          renderTimerUI();
+          timerState.prepTimeoutId = setTimeout(stepPrep, 1000);
+        } else {
+          beginRunningTimer();
+        }
+      };
+      timerState.prepTimeoutId = setTimeout(stepPrep, 1000);
+    } else {
+      beginRunningTimer();
+    }
+  }
+
+  function openTimerModal(exerciseId = null) {
+    resetTimer();
+    timerState.exerciseId = exerciseId;
+    const ex = exerciseId ? getExerciseById(exerciseId) : null;
+    document.getElementById('timer-modal-title').textContent = ex ? `⏱️ ${ex.name}-Timer` : '⏱️ Halte-Timer';
+    renderTimerUI();
+    document.getElementById('timer-modal').classList.remove('hidden');
   }
 
   function applyTheme() {
@@ -1390,6 +1691,39 @@
       closeModal('exercise-modal');
     });
 
+    // Timer Modal Events
+    document.getElementById('btn-open-timer').addEventListener('click', () => openTimerModal(null));
+    document.getElementById('btn-timer-start').addEventListener('click', startOrPauseTimer);
+    document.getElementById('btn-timer-reset').addEventListener('click', resetTimer);
+
+    document.querySelectorAll('[data-timer-mode]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        if (timerState.mode === btn.dataset.timerMode) return;
+        timerState.mode = btn.dataset.timerMode;
+        resetTimer();
+      });
+    });
+
+    document.querySelectorAll('[data-preset-sec]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const sec = parseInt(btn.dataset.presetSec, 10) || 60;
+        timerState.targetSec = sec;
+        document.getElementById('timer-custom-sec').value = sec;
+        document.querySelectorAll('[data-preset-sec]').forEach((p) => p.classList.toggle('active', p === btn));
+        resetTimer();
+      });
+    });
+
+    document.getElementById('timer-custom-sec').addEventListener('change', (e) => {
+      const sec = Math.min(3600, Math.max(5, parseInt(e.target.value, 10) || 60));
+      e.target.value = sec;
+      timerState.targetSec = sec;
+      document.querySelectorAll('[data-preset-sec]').forEach((p) => {
+        p.classList.toggle('active', parseInt(p.dataset.presetSec, 10) === sec);
+      });
+      resetTimer();
+    });
+
     // Settings Modal
     document.getElementById('btn-open-settings').addEventListener('click', openSettingsModal);
     document.getElementById('toggle-auto-levelup').addEventListener('change', updateLevelUpDaysRow);
@@ -1446,7 +1780,7 @@
     });
     document.querySelectorAll('.modal-backdrop').forEach((backdrop) => {
       backdrop.addEventListener('click', (e) => {
-        if (e.target === backdrop) backdrop.classList.add('hidden');
+        if (e.target === backdrop) closeModal(backdrop.id);
       });
     });
   }

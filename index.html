@@ -11,7 +11,7 @@
   <link rel="manifest" href="./manifest.webmanifest" />
   <link rel="icon" type="image/svg+xml" href="./icon.svg" />
   <link rel="apple-touch-icon" href="./icon.svg" />
-  <link rel="stylesheet" href="./styles.css?v=11" />
+  <link rel="stylesheet" href="./styles.css?v=12" />
 </head>
 <body>
   <div class="app-shell">
@@ -29,6 +29,13 @@
           <span class="streak-flame">🔥</span>
           <span id="header-streak-text">0/5 Woche</span>
         </div>
+        <button id="btn-open-timer" class="icon-btn" aria-label="Timer" title="Timer für Planks & Dehnen">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="10" y1="2" x2="14" y2="2"></line>
+            <line x1="12" y1="14" x2="15" y2="11"></line>
+            <circle cx="12" cy="14" r="8"></circle>
+          </svg>
+        </button>
         <button id="btn-open-settings" class="icon-btn" aria-label="Einstellungen" title="Einstellungen">
           <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="3"></circle>
@@ -333,12 +340,78 @@
     </div>
   </div>
 
+  <!-- Timer Modal -->
+  <div id="timer-modal" class="modal-backdrop modal-backdrop-top hidden" role="dialog" aria-modal="true" aria-labelledby="timer-modal-title">
+    <div class="modal-sheet modal-sheet-tall">
+      <div class="modal-header">
+        <h3 id="timer-modal-title" class="modal-title">⏱️ Halte-Timer</h3>
+        <button class="icon-btn modal-close" data-close="timer-modal" aria-label="Schließen">✕</button>
+      </div>
+
+      <div class="timer-body">
+        <!-- Mode Switcher -->
+        <div class="segmented-control" role="tablist">
+          <button type="button" class="seg-btn active" data-timer-mode="stopwatch">Stoppuhr</button>
+          <button type="button" class="seg-btn" data-timer-mode="countdown">Countdown</button>
+        </div>
+
+        <!-- Circular Timer Display -->
+        <div class="timer-dial-wrap">
+          <svg viewBox="0 0 180 180" class="timer-dial-svg" aria-hidden="true">
+            <circle cx="90" cy="90" r="78" class="timer-ring-track" />
+            <circle cx="90" cy="90" r="78" class="timer-ring-fill" id="timer-ring-fill" />
+          </svg>
+          <div class="timer-dial-center">
+            <div id="timer-display" class="timer-display">00:00</div>
+            <div id="timer-status-text" class="timer-status-text">Bereit</div>
+          </div>
+        </div>
+
+        <!-- Countdown Presets (only visible in countdown mode) -->
+        <div id="timer-presets-wrap" class="timer-presets-wrap hidden">
+          <div class="timer-presets-row">
+            <button type="button" class="preset-chip" data-preset-sec="30">30s</button>
+            <button type="button" class="preset-chip" data-preset-sec="45">45s</button>
+            <button type="button" class="preset-chip active" data-preset-sec="60">60s</button>
+            <button type="button" class="preset-chip" data-preset-sec="90">90s</button>
+            <button type="button" class="preset-chip" data-preset-sec="120">2m</button>
+          </div>
+          <div class="timer-custom-sec-row">
+            <label for="timer-custom-sec" class="setting-hint">Eigene Zeit (Sek.):</label>
+            <input id="timer-custom-sec" type="number" inputmode="numeric" min="5" max="3600" value="60" class="small-number-input" style="width: 78px; padding: 6px 8px;" />
+          </div>
+        </div>
+
+        <!-- Prep & Sound Toggles -->
+        <div class="timer-options-row">
+          <label class="timer-check-pill">
+            <input id="timer-prep-toggle" type="checkbox" checked />
+            <span>3s Vorlauf</span>
+          </label>
+          <label class="timer-check-pill">
+            <input id="timer-sound-toggle" type="checkbox" checked />
+            <span>Ton & Piep</span>
+          </label>
+        </div>
+
+        <!-- Main Controls -->
+        <div class="timer-controls-row">
+          <button type="button" id="btn-timer-start" class="btn-primary timer-main-btn">Start</button>
+          <button type="button" id="btn-timer-reset" class="btn-secondary">Reset</button>
+        </div>
+
+        <!-- Direct Log Section (for timed exercises) -->
+        <div id="timer-log-box" class="timer-log-box hidden"></div>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast Container -->
   <div id="toast-container" class="toast-container" aria-live="polite"></div>
 
   <!-- Confetti Canvas -->
   <canvas id="confetti-canvas" class="confetti-canvas" aria-hidden="true"></canvas>
 
-  <script src="./app.js?v=11"></script>
+  <script src="./app.js?v=12"></script>
 </body>
 </html>

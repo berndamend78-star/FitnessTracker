@@ -1410,6 +1410,211 @@ html, body {
   white-space: nowrap;
 }
 
+.ex-timer-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid var(--ex-border);
+  background: var(--surface);
+  color: var(--ex-color);
+  border-radius: 8px;
+  padding: 3px 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+.ex-timer-btn:active {
+  transform: scale(0.95);
+}
+
+/* Timer Modal */
+.timer-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.segmented-control {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 4px;
+  background: var(--surface-elevated);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.seg-btn {
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  padding: 8px 10px;
+  border-radius: 9px;
+  font-size: 0.86rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.seg-btn.active {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+}
+
+.timer-dial-wrap {
+  position: relative;
+  width: 184px;
+  height: 184px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.timer-dial-svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.timer-ring-track {
+  fill: none;
+  stroke: var(--surface-elevated);
+  stroke-width: 10;
+}
+
+.timer-ring-fill {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 10;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.2s linear, stroke 0.2s ease;
+}
+
+.timer-dial-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.timer-display {
+  font-size: 2.45rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.05;
+}
+
+.timer-status-text {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.timer-presets-wrap {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.timer-presets-wrap.hidden {
+  display: none;
+}
+
+.timer-presets-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+}
+
+.preset-chip {
+  border: 1px solid var(--border);
+  background: var(--surface-elevated);
+  color: var(--text);
+  border-radius: 10px;
+  padding: 7px 4px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.preset-chip.active {
+  background: var(--accent);
+  color: #ffffff;
+  border-color: var(--accent);
+}
+
+.timer-custom-sec-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.timer-options-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.timer-check-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 11px;
+  border-radius: 999px;
+  background: var(--surface-elevated);
+  border: 1px solid var(--border);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.timer-controls-row {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 10px;
+}
+
+.timer-main-btn {
+  font-size: 1rem;
+  padding: 13px 16px;
+}
+
+.timer-log-box {
+  width: 100%;
+  padding: 12px;
+  border-radius: 14px;
+  background: var(--surface-elevated);
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.timer-log-box.hidden {
+  display: none;
+}
+
+.timer-log-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 /* Confetti */
 .confetti-canvas {
   position: fixed;
