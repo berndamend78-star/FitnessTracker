@@ -687,7 +687,8 @@
         const goal = ex.goal;
         const isWeekly = ex.goalType === 'weekly';
         const progressVal = isWeekly ? weekVal : todayVal;
-        const pct = Math.min(100, Math.round((progressVal / Math.max(goal, 1)) * 100));
+        const rawPct = Math.round((progressVal / Math.max(goal, 1)) * 100);
+        const barPct = Math.min(100, rawPct);
         const activeAvg = getActiveDayAverage(dailyMap, ex.id);
         const records = getExerciseRecords(dailyMap, ex.id);
         const goalReached = progressVal >= goal;
@@ -711,9 +712,13 @@
           ? `<div class="ex-current">${formatUnit(ex, todayVal, true)}</div><div class="ex-goal">heute</div>`
           : `<div class="ex-current">${formatUnit(ex, todayVal, true)}</div><div class="ex-goal">/ ${formatUnit(ex, goal, true)}</div>`;
 
+        const pctBadge = rawPct > 100
+          ? `<span style="color: ${colors.color}; font-weight: 800;">${rawPct}%</span>`
+          : `<span>${rawPct}%</span>`;
+
         const progressRowHtml = isWeekly
-          ? `<div class="ex-progress-row"><span>Woche: <strong>${formatUnit(ex, weekVal, true)}</strong> / ${formatUnit(ex, goal, true)}</span><span>${pct}%</span></div>`
-          : '';
+          ? `<div class="ex-progress-row"><span>Woche: <strong>${formatUnit(ex, weekVal, true)}</strong> / ${formatUnit(ex, goal, true)}</span>${pctBadge}</div>`
+          : `<div class="ex-progress-row"><span>Tagesziel</span>${pctBadge}</div>`;
 
         const timerBtnHtml = ex.unit === 'sec'
           ? `<button type="button" class="ex-timer-btn" data-timer-ex="${ex.id}" title="Timer für ${escapeHtml(ex.name)} starten">⏱️ Timer</button>`
@@ -735,7 +740,7 @@
             </div>
             ${progressRowHtml}
             <div class="progress-bar-bg">
-              <div class="progress-bar-fill" style="width: ${pct}%; background: ${colors.color};"></div>
+              <div class="progress-bar-fill" style="width: ${barPct}%; background: ${colors.color};"></div>
             </div>
             <div class="quick-add-row" style="grid-template-columns: repeat(${quickAddList.length + 1}, 1fr);">
               ${quickBtns}
